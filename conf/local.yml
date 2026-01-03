@@ -1,0 +1,23 @@
+# TL Labs Caldera Local Configuration
+# This file overrides settings from default.yml
+# DO NOT commit this file (it's in .gitignore)
+
+# ============================================
+# Orchestrator Plugin Configuration
+# ============================================
+elk:
+  url: http://localhost:9200  # ⚠️ REPLACE with actual TL Labs ELK IP
+  index: purple-team-logs
+  api_key: ""  # Optional: Set in .env for security
+  verify_ssl: false  # Set true in production
+  connection_timeout: 30
+  max_retries: 3
+
+# Enable orchestrator plugin
+plugins:
+  - sandcat
+  - stockpile
+  - atomic
+  - emu
+  - magma
+  - orchestrator  # ✨ NEW
