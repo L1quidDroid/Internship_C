@@ -73,7 +73,7 @@ fi
 # 5. Run unit tests
 echo -e "\n5. Running unit tests..."
 cd "$CALDERA_DIR"
-if python -m pytest plugins/orchestrator/tests/test_elk_tagger.py -v 2>&1 | tee /tmp/orchestrator_test.log; then
+if python3 -m pytest plugins/orchestrator/tests/test_elk_tagger.py -v 2>&1 | tee /tmp/orchestrator_test.log; then
     echo -e "   ${GREEN}✅ Unit tests passed${NC}"
     
     # Show coverage summary
@@ -87,13 +87,13 @@ fi
 
 # 6. Check Python dependencies
 echo -e "\n6. Checking Python dependencies..."
-if python -c "import elasticsearch" 2>/dev/null; then
+if python3 -c "import elasticsearch" 2>/dev/null; then
     echo -e "   ${GREEN}✅ elasticsearch library installed${NC}"
 else
     echo -e "   ${YELLOW}⚠️  elasticsearch library not installed (fallback mode only)${NC}"
 fi
 
-if python -c "from dotenv import load_dotenv" 2>/dev/null; then
+if python3 -c "from dotenv import load_dotenv" 2>/dev/null; then
     echo -e "   ${GREEN}✅ python-dotenv library installed${NC}"
 else
     echo -e "   ${RED}❌ python-dotenv library missing${NC}"
@@ -106,7 +106,7 @@ SYNTAX_ERRORS=0
 
 for file in plugins/orchestrator/app/*.py plugins/orchestrator/*.py; do
     if [ -f "$file" ]; then
-        if python -m py_compile "$file" 2>/dev/null; then
+        if python3 -m py_compile "$file" 2>/dev/null; then
             echo -e "   ${GREEN}✅${NC} $file"
         else
             echo -e "   ${RED}❌${NC} $file (syntax error)"
