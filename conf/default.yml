@@ -31,16 +31,13 @@ reachable_host_traits:
 - remote.host.ip
 host: 0.0.0.0
 plugins:
-- access
 - atomic
-- compass
-- debrief
-- fieldmanual
-- manx
-- response
+- branding
+- magma
+- orchestrator
+- reporting
 - sandcat
 - stockpile
-- training
 port: 8888
 reports_dir: /tmp
 auth.login.handler.module: default

@@ -52,11 +52,11 @@ class OrchestratorService:
             **kwargs: Event metadata
         """
         try:
-            self.log.info(f'Tagging operation: {operation.id[:16]}...')
+            self.log.info(f'[orchestrator] Tagging operation: {operation.id[:16]}... (state: {operation.state})')
             await self.elk_tagger.tag(operation)
         except Exception as e:
             # Non-fatal error (don't break operation)
-            self.log.error(f'Operation tagging failed (non-fatal): {str(e)[:100]}')
+            self.log.error(f'[orchestrator] Operation tagging failed (non-fatal): {e}', exc_info=True)
     
     async def on_operation_completed(self, operation, **kwargs):
         """
@@ -70,16 +70,25 @@ class OrchestratorService:
             **kwargs: Event metadata
         """
         try:
-            self.log.info(f'Operation finished: {operation.id[:16]}... (state: {operation.state})')
+            self.log.info(f'[orchestrator] Operation finished: {operation.id[:16]}... (state: {operation.state})')
             
             # Update operation status in ELK
             # (Re-tag with final state)
             await self.elk_tagger.tag(operation)
             
-            # TODO: Trigger PDF report generation (Feature 2)
+            # Trigger PDF report generation
+            report_svc = self.services.get('report_svc')
+            if report_svc:
+                self.log.info(f'[orchestrator] Triggering report generation for {operation.name}')
+                try:
+                    await report_svc.generate_report(operation)
+                except Exception as report_error:
+                    self.log.error(f'[orchestrator] Report generation failed: {report_error}', exc_info=True)
+            else:
+                self.log.warning('[orchestrator] report_svc not available, skipping PDF generation')
             
         except Exception as e:
-            self.log.error(f'Operation finish handling failed: {str(e)[:100]}')
+            self.log.error(f'[orchestrator] Operation finish handling failed: {e}', exc_info=True)
     
     async def shutdown(self):
         """Shutdown orchestrator service and cleanup resources."""
