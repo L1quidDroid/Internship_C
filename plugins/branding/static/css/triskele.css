@@ -1,0 +1,386 @@
+/**
+ * Triskele Labs Branding Override
+ * Version: 1.1 (Updated with correct logo paths)
+ * Date: January 2026
+ * 
+ * Color Palette:
+ * - Primary Blue: #0f3460
+ * - Accent Teal: #16a085
+ */
+
+/* ============================================
+   1. CSS VARIABLES
+   ============================================ */
+:root {
+    --triskele-blue: #0f3460;
+    --triskele-teal: #16a085;
+    --triskele-dark: #1a1a2e;
+    --triskele-light: #ecf0f1;
+    
+    --primary-color: var(--triskele-blue);
+    --accent-color: var(--triskele-teal);
+    --bg-color: #f8f9fa;
+    --text-color: #2c3e50;
+    
+    --success-color: #27ae60;
+    --warning-color: #f39c12;
+    --danger-color: #e74c3c;
+}
+
+/* ============================================
+   2. NAVIGATION BAR
+   ============================================ */
+.navbar,
+.navbar-default {
+    background-color: var(--triskele-blue) !important;
+    border-color: var(--triskele-blue) !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar .nav-link,
+.navbar-nav .nav-link,
+.navbar-default .navbar-nav > li > a {
+    color: white !important;
+}
+
+.navbar .nav-link:hover,
+.navbar-nav .nav-link:hover,
+.navbar-default .navbar-nav > li > a:hover {
+    background-color: var(--triskele-teal) !important;
+    color: white !important;
+    border-radius: 4px;
+}
+
+.navbar .nav-link.active,
+.navbar-nav .nav-link.active {
+    background-color: var(--triskele-teal) !important;
+    font-weight: bold;
+}
+
+/* ============================================
+   3. LOGO REPLACEMENT (UPDATED PATHS)
+   ============================================ */
+
+/* Option 1: Use SVG for navbar (best quality, scalable) */
+.navbar-brand img,
+.logo img,
+img[src*="caldera.png"],
+img[src*="mitre"],
+img[alt*="Caldera"] {
+    content: url('/branding/static/img/triskele_logo.svg') !important;
+    max-height: 40px !important;
+    width: auto !important;
+    padding: 5px 0;
+}
+
+/* Option 2: Use PNG as fallback for older browsers */
+@supports not (content: url('/branding/static/img/triskele_logo.svg')) {
+    .navbar-brand img,
+    .logo img {
+        content: url('/branding/static/img/triskele_logo.png') !important;
+    }
+}
+
+/* Large logo for splash screens / login pages */
+.splash-logo,
+.login-logo,
+.hero-logo {
+    content: url('/branding/static/img/triskele_logo_large.svg') !important;
+    max-width: 400px !important;
+    height: auto !important;
+}
+
+/* Logo container */
+.navbar-brand {
+    padding: 5px 15px;
+}
+
+/* ============================================
+   4. BUTTONS
+   ============================================ */
+.btn-primary,
+button.btn-primary,
+.button-primary {
+    background-color: var(--triskele-blue) !important;
+    border-color: var(--triskele-blue) !important;
+    color: white !important;
+}
+
+.btn-primary:hover,
+button.btn-primary:hover {
+    background-color: #1a4d7a !important;
+    border-color: #1a4d7a !important;
+}
+
+.btn-secondary,
+.btn-info {
+    background-color: var(--triskele-teal) !important;
+    border-color: var(--triskele-teal) !important;
+    color: white !important;
+}
+
+.btn-secondary:hover,
+.btn-info:hover {
+    background-color: #138d75 !important;
+}
+
+.btn-success {
+    background-color: var(--success-color) !important;
+    border-color: var(--success-color) !important;
+}
+
+.btn-danger {
+    background-color: var(--danger-color) !important;
+    border-color: var(--danger-color) !important;
+}
+
+/* ============================================
+   5. CARDS & PANELS
+   ============================================ */
+.card-header,
+.panel-heading {
+    background-color: var(--triskele-blue) !important;
+    color: white !important;
+    border-bottom: 2px solid var(--triskele-teal);
+}
+
+.card-body,
+.panel-body {
+    background-color: white;
+    color: var(--text-color);
+}
+
+.card:hover {
+    box-shadow: 0 4px 8px rgba(15, 52, 96, 0.2);
+    transition: box-shadow 0.3s ease;
+}
+
+/* ============================================
+   6. BADGES & LABELS
+   ============================================ */
+.badge-primary,
+.label-primary {
+    background-color: var(--triskele-blue) !important;
+}
+
+.badge-info,
+.label-info {
+    background-color: var(--triskele-teal) !important;
+}
+
+.badge-success,
+.label-success {
+    background-color: var(--triskele-teal) !important;
+}
+
+/* ============================================
+   7. ALERTS & NOTIFICATIONS
+   ============================================ */
+.alert-primary {
+    background-color: rgba(15, 52, 96, 0.1) !important;
+    border-color: var(--triskele-blue) !important;
+    color: var(--triskele-blue) !important;
+}
+
+.alert-info {
+    background-color: rgba(22, 160, 133, 0.1) !important;
+    border-color: var(--triskele-teal) !important;
+    color: var(--triskele-teal) !important;
+}
+
+/* ============================================
+   8. SIDEBAR
+   ============================================ */
+.sidebar,
+.sidebar-dark {
+    background-color: var(--triskele-dark) !important;
+    color: var(--triskele-light);
+}
+
+.sidebar .nav-link,
+.sidebar-dark .nav-link {
+    color: var(--triskele-light) !important;
+}
+
+.sidebar .nav-link:hover,
+.sidebar-dark .nav-link:hover {
+    background-color: var(--triskele-blue) !important;
+    border-left: 3px solid var(--triskele-teal);
+}
+
+/* ============================================
+   9. TABLES
+   ============================================ */
+.table thead th,
+.table-header {
+    background-color: var(--triskele-blue) !important;
+    color: white !important;
+    border-color: var(--triskele-blue) !important;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(15, 52, 96, 0.05) !important;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(15, 52, 96, 0.02);
+}
+
+/* ============================================
+   10. FOOTER
+   ============================================ */
+.footer,
+footer {
+    background-color: var(--triskele-blue) !important;
+    color: white !important;
+    padding: 15px 0;
+    text-align: center;
+    margin-top: 40px;
+    border-top: 3px solid var(--triskele-teal);
+}
+
+.footer a,
+footer a {
+    color: var(--triskele-teal) !important;
+    text-decoration: none;
+}
+
+.footer a:hover,
+footer a:hover {
+    color: white !important;
+    text-decoration: underline;
+}
+
+/* ============================================
+   11. PROGRESS BARS
+   ============================================ */
+.progress-bar {
+    background: linear-gradient(90deg, var(--triskele-blue), var(--triskele-teal)) !important;
+}
+
+/* ============================================
+   12. FORMS
+   ============================================ */
+.form-label,
+label {
+    color: var(--triskele-blue);
+    font-weight: 600;
+}
+
+.form-control:focus,
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: var(--triskele-teal) !important;
+    box-shadow: 0 0 0 0.2rem rgba(22, 160, 133, 0.25) !important;
+}
+
+/* ============================================
+   13. MODALS
+   ============================================ */
+.modal-header {
+    background-color: var(--triskele-blue) !important;
+    color: white !important;
+}
+
+.modal-footer {
+    border-top: 2px solid var(--triskele-teal);
+}
+
+/* ============================================
+   14. LOADING SPINNERS
+   ============================================ */
+.spinner-border,
+.spinner-grow {
+    color: var(--triskele-teal) !important;
+}
+
+/* ============================================
+   15. PAGE TITLE / BREADCRUMBS
+   ============================================ */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--triskele-blue);
+}
+
+.breadcrumb {
+    background-color: rgba(15, 52, 96, 0.05);
+}
+
+.breadcrumb-item.active {
+    color: var(--triskele-teal);
+}
+
+/* ============================================
+   16. OPERATION STATUS INDICATORS
+   ============================================ */
+.operation-running,
+.status-running {
+    background-color: var(--triskele-teal) !important;
+    color: white !important;
+}
+
+.operation-finished,
+.status-finished {
+    background-color: var(--success-color) !important;
+    color: white !important;
+}
+
+.operation-failed,
+.status-failed {
+    background-color: var(--danger-color) !important;
+    color: white !important;
+}
+
+/* ============================================
+   17. SCROLLBARS
+   ============================================ */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--triskele-blue);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--triskele-teal);
+}
+
+/* ============================================
+   18. TOOLTIPS
+   ============================================ */
+.tooltip-inner {
+    background-color: var(--triskele-blue) !important;
+}
+
+.tooltip.bs-tooltip-top .arrow::before {
+    border-top-color: var(--triskele-blue) !important;
+}
+
+/* ============================================
+   19. DROPDOWN MENUS
+   ============================================ */
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: rgba(15, 52, 96, 0.1) !important;
+    color: var(--triskele-blue) !important;
+}
+
+/* ============================================
+   20. RESPONSIVE / MOBILE
+   ============================================ */
+@media (max-width: 768px) {
+    .navbar-brand img {
+        max-height: 30px !important;
+    }
+    
+    .navbar-nav {
+        flex-direction: column;
+    }
+}
