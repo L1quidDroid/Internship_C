@@ -19,7 +19,7 @@ async function handleLogin(e) {
 
 <template lang="pug">
 #login.container.content.fullwh.is-flex.is-flex-direction-column.is-align-items-center.is-justify-content-center()
-    img(src="/src/assets/img/caldera-logo.png" alt="Caldera Logo")
+    img(src="/branding/static/img/triskele_logo_large.svg" alt="Triskele Labs Logo")
     .p-6
         form
             .field
