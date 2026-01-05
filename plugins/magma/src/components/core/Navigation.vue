@@ -44,9 +44,9 @@ function promptToEnablePlugin(pluginName) {
         a.icon(@click="coreStore.modifyUserSettings('collapseNavigation', !userSettings.collapseNavigation)")
             font-awesome-icon(:icon="userSettings.collapseNavigation ? 'fas fa-angles-right' : 'fas fa-angles-left'")
     #logo(v-if="!userSettings.collapseNavigation")
-        img(src="/src/assets/img/caldera-logo.png" alt="Caldera Logo" @click="router.push('/')")
+        img(src="/branding/static/img/triskele_logo.svg" alt="Triskele Labs Logo" @click="router.push('/')")
     #logo-collapsed(v-if="userSettings.collapseNavigation")
-        img(src="/src/assets/img/caldera-logo-mtn.png" alt="Caldera Logo" @click="router.push('/')")
+        img(src="/branding/static/img/triskele_logo.svg" alt="Triskele Labs Logo" @click="router.push('/')")
     #user-info(v-if="!userSettings.collapseNavigation")
       div.team-container
         span.icon(:class="{ 'is-red': group === 'RED', 'is-blue': group === 'BLUE'}")
