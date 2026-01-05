@@ -1,161 +1,138 @@
 """
-Reporting plugin hook for MITRE Caldera.
+Caldera plugin registration hook for PDF reporting.
 
-Registers the reporting service and subscribes to operation events
-for automatic PDF report generation.
+Dependency Safety:
+- Gracefully handles missing dependencies (reportlab, pillow, psutil)
+- If import fails → plugin disabled, Caldera server continues running
+- Logs clear error message with installation instructions
+
+Thread Safety:
+- Uses ReportService singleton ThreadPoolExecutor
+- No thread leaks on server shutdown
 """
 
 import logging
 
-from plugins.reporting.app.report_svc import ReportingService
-
-
+# Plugin metadata (always defined, even if imports fail)
 name = 'Reporting'
-description = 'Automated PDF report generation for purple team exercises'
+description = 'Automated PDF report generation for purple team operations'
 address = '/plugin/reporting/gui'
 access = None
 
+# Global flag: plugin enabled status
+_plugin_enabled = False
+_import_error_message = None
 
-logger = logging.getLogger(__name__)
+# ✅ DEPENDENCY SAFETY: Try imports, disable plugin if missing
+try:
+    from plugins.reporting.app.report_svc import ReportService
+    _plugin_enabled = True
+except ImportError as e:
+    _import_error_message = str(e)
+    _plugin_enabled = False
+except Exception as e:
+    _import_error_message = f"Unexpected error: {str(e)}"
+    _plugin_enabled = False
 
 
-async def enable(services: dict):
+async def enable(services):
     """
-    Enable the reporting plugin.
+    Called by Caldera when plugin is enabled (server startup).
     
-    Initializes the reporting service and subscribes to operation
-    completion events for automatic report generation.
+    Graceful Degradation:
+        - If dependencies missing → log error, skip registration
+        - Caldera server continues running (other plugins unaffected)
+        - User sees clear error message with fix instructions
     
-    Args:
-        services: Dictionary of Caldera services
+    Thread Safety:
+        - ReportService uses singleton ThreadPoolExecutor
+        - Registered routes use async handlers (non-blocking)
+    
+    Returns:
+        None (modifies services dict in-place)
     """
+    logger = services.get('app_svc').get_logger() if services.get('app_svc') else logging.getLogger(__name__)
+    
+    # Check if plugin dependencies available
+    if not _plugin_enabled:
+        logger.error(
+            f'❌ Reporting plugin DISABLED: Missing dependencies\n'
+            f'   Error: {_import_error_message}\n'
+            f'   Fix: pip install reportlab pillow psutil\n'
+            f'   Then restart Caldera: python server.py --insecure'
+        )
+        return  # Exit early, don't register routes/events
+    
+    logger.info('🔧 Initializing Reporting plugin...')
+    
+    # Extract Caldera services
+    app = services.get('app_svc').application
+    event_svc = services.get('event_svc')
+    
     try:
-        # Initialize reporting service
-        report_svc = ReportingService(services)
+        # Create service instance (initializes ThreadPoolExecutor)
+        report_svc = ReportService(services)
         
-        # Register service with Caldera
-        services['report_svc'] = report_svc
+        # Register REST API routes
+        app.router.add_route(
+            'POST',
+            '/plugin/reporting/generate',
+            report_svc.generate_report_api
+        )
+        logger.info('✅ Reporting plugin: REST API registered at POST /plugin/reporting/generate')
+        
+        app.router.add_route(
+            'GET',
+            '/plugin/reporting/list',
+            report_svc.list_reports
+        )
+        logger.info('✅ Reporting plugin: REST API registered at GET /plugin/reporting/list')
         
         # Subscribe to operation completion events
-        event_svc = services.get('event_svc')
-        
         if event_svc:
-            # Subscribe to 'operation' exchange, 'completed' queue
             await event_svc.observe_event(
                 callback=report_svc.on_operation_completed,
                 exchange='operation',
                 queue='completed'
             )
-            
-            logger.info("Reporting plugin subscribed to operation.completed events")
+            logger.info('✅ Reporting plugin: Subscribed to operation.completed events')
         else:
-            logger.warning("Event service not available, automatic reporting disabled")
+            logger.warning('⚠️ event_svc not available—auto-generation disabled')
         
-        # Register REST API endpoints
-        app_svc = services.get('app_svc')
+        # Store service reference for cleanup
+        services['report_svc'] = report_svc
         
-        if app_svc:
-            app_svc.application.router.add_route(
-                'POST',
-                '/api/v2/reports/generate',
-                handle_generate_report(report_svc)
-            )
-            
-            app_svc.application.router.add_route(
-                'GET',
-                '/api/v2/reports/list',
-                handle_list_reports(report_svc)
-            )
-            
-            logger.info("Reporting plugin REST API endpoints registered")
+        logger.info('✅ Reporting plugin loaded successfully')
         
-        logger.info("Reporting plugin enabled successfully")
-    
     except Exception as e:
-        logger.exception(f"Failed to enable reporting plugin: {e}")
-        raise
+        logger.error(f'❌ Failed to initialize Reporting plugin: {e}', exc_info=True)
+        # Don't re-raise—allow Caldera to continue starting
 
 
-def handle_generate_report(report_svc: ReportingService):
+async def disable(services):
     """
-    Create REST API handler for manual report generation.
+    Called by Caldera when plugin is disabled (server shutdown).
     
-    Args:
-        report_svc: ReportingService instance
-        
-    Returns:
-        Async request handler function
+    Thread Safety:
+        - Calls report_svc.shutdown() → executor.shutdown(wait=True)
+        - Waits for pending reports (max 30s)
+        - Prevents thread leaks
     """
-    async def handler(request):
-        """Handle POST /api/v2/reports/generate"""
+    logger = services.get('app_svc').get_logger() if services.get('app_svc') else logging.getLogger(__name__)
+    
+    if not _plugin_enabled:
+        logger.debug('Reporting plugin was not enabled, skipping disable')
+        return
+    
+    logger.info('🔧 Disabling Reporting plugin...')
+    
+    report_svc = services.get('report_svc')
+    
+    if report_svc:
         try:
-            data = await request.json()
-            operation_id = data.get('operation_id')
-            
-            if not operation_id:
-                return web.json_response(
-                    {'error': 'operation_id required'},
-                    status=400
-                )
-            
-            pdf_path = await report_svc.generate_report_manual(operation_id)
-            
-            if pdf_path:
-                return web.json_response({
-                    'status': 'success',
-                    'operation_id': operation_id,
-                    'report_path': str(pdf_path)
-                })
-            else:
-                return web.json_response(
-                    {'error': 'Report generation failed'},
-                    status=500
-                )
-        
+            await report_svc.shutdown()
+            logger.info('✅ Reporting plugin disabled successfully')
         except Exception as e:
-            logger.exception(f"Error in generate_report handler: {e}")
-            return web.json_response(
-                {'error': str(e)},
-                status=500
-            )
-    
-    return handler
-
-
-def handle_list_reports(report_svc: ReportingService):
-    """
-    Create REST API handler for listing reports.
-    
-    Args:
-        report_svc: ReportingService instance
-        
-    Returns:
-        Async request handler function
-    """
-    async def handler(request):
-        """Handle GET /api/v2/reports/list"""
-        try:
-            reports = await report_svc.list_reports()
-            
-            return web.json_response({
-                'status': 'success',
-                'count': len(reports),
-                'reports': reports
-            })
-        
-        except Exception as e:
-            logger.exception(f"Error in list_reports handler: {e}")
-            return web.json_response(
-                {'error': str(e)},
-                status=500
-            )
-    
-    return handler
-
-
-# Import aiohttp web for REST API handlers
-try:
-    from aiohttp import web
-except ImportError:
-    logger.warning("aiohttp not available, REST API handlers disabled")
-    web = None
+            logger.error(f'❌ Error during Reporting plugin shutdown: {e}', exc_info=True)
+    else:
+        logger.warning('report_svc not found in services (may have failed during enable)')
