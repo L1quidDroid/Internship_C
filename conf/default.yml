@@ -23,7 +23,7 @@ app.contact.tcp: 0.0.0.0:7010
 app.contact.udp: 0.0.0.0:7011
 app.contact.websocket: 0.0.0.0:7012
 objects.planners.default: atomic
-crypt_salt: REPLACE_WITH_RANDOM_VALUE
+crypt_salt: b6f88c54bb92e4d5b96f8e2c7a14df0c
 encryption_key: ADMIN123
 exfil_dir: /tmp/caldera
 reachable_host_traits:

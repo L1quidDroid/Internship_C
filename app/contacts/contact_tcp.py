@@ -6,7 +6,20 @@ import time
 from typing import Tuple
 
 from app.utility.base_world import BaseWorld
-from plugins.manx.app.c_session import Session
+
+try:
+    from plugins.manx.app.c_session import Session
+except ModuleNotFoundError:
+    Session = None
+
+
+if Session is None:
+    class Session:  # type: ignore
+        def __init__(self, id: int, paw: str, reader, writer) -> None:
+            self.id = id
+            self.paw = paw
+            self.reader = reader
+            self.writer = writer
 
 
 class Contact(BaseWorld):
@@ -15,6 +28,8 @@ class Contact(BaseWorld):
         self.name = 'tcp'
         self.description = 'Accept beacons through a raw TCP socket'
         self.log = self.create_logger('contact_tcp')
+        if Session is None:
+            self.log.warning('Manx plugin not found; TCP contact using fallback session class')
         self.contact_svc = services.get('contact_svc')
         self.tcp_handler = TcpSessionHandler(services, self.log)
 
