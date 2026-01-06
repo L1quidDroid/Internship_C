@@ -20,6 +20,8 @@ class OrchestratorService:
     - Provide health check API (Phase 5)
     """
     
+    _services = {}  # Class-level service registry
+    
     def __init__(self, services: Dict[str, Any]):
         """
         Initialize orchestrator service.

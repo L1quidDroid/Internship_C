@@ -79,9 +79,17 @@ class ReportService:
         self.data_svc = services.get('data_svc')
         self.event_svc = services.get('event_svc')
         
-        # Get logger from app_svc
+        # Get logger with multiple fallbacks
         app_svc = services.get('app_svc')
-        self.log = app_svc.get_logger() if app_svc and hasattr(app_svc, 'get_logger') else logging.getLogger(__name__)
+        if app_svc and hasattr(app_svc, 'get_logger'):
+            try:
+                self.log = app_svc.get_logger()
+            except Exception:
+                self.log = logging.getLogger('reporting_svc')
+        elif app_svc and hasattr(app_svc, 'log'):
+            self.log = app_svc.log
+        else:
+            self.log = logging.getLogger('reporting_svc')
         
         # Initialize configuration
         try:
@@ -424,3 +432,5 @@ class ReportService:
         self._executor.shutdown(wait=True)
         
         self.log.info("✅ Report service shutdown complete")
+def get_logger(self):
+    return self.log
