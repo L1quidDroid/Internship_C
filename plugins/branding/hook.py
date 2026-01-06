@@ -68,6 +68,10 @@ async def enable(services):
     @web.middleware
     async def branding_middleware(request, handler):
         """Inject branding CSS and JS into HTML responses."""
+        # Skip middleware for Magma Vue SPA routes (already has branding in build)
+        if request.path == '/' or request.path.startswith('/assets/'):
+            return await handler(request)
+        
         response = await handler(request)
         
         # Only modify HTML responses
