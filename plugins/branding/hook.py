@@ -101,9 +101,9 @@ async def enable(services):
         
         return response
     
-    # Note: Middleware registration requires modifying app setup
-    # For now, rely on manual inclusion or template modifications
-    logger.info('Branding middleware ready (requires template integration)')
+    # Register middleware with app for automatic HTML injection
+    app.middlewares.append(branding_middleware)
+    logger.info('✅ Branding middleware registered and active')
     
     # Log available files
     for subdir in ['css', 'js', 'img']:

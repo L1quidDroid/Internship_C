@@ -29,9 +29,8 @@ class OrchestratorService:
         Args:
             services: Caldera service registry
         """
-        # Create logger using BaseService pattern
-        from app.utility.base_service import BaseService
-        self.log = BaseService.add_service(self, 'orchestrator_svc', self)
+        # Create logger using standard logging
+        self.log = logging.getLogger('orchestrator_svc')
         
         # Store service references
         self.services = services
