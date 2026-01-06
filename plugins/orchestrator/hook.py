@@ -4,6 +4,8 @@ Orchestrator plugin event registration.
 Registers with Caldera plugin system and subscribes to operation events via event_svc.
 """
 
+import logging
+
 name = 'Orchestrator'
 description = 'TL Labs Purple Team Automation - Attack Tagging & Orchestration'
 address = None  # No GUI endpoint (backend service only)
@@ -20,9 +22,8 @@ async def enable(services):
     """
     from plugins.orchestrator.app.orchestrator_svc import OrchestratorService
     from plugins.orchestrator.app.config import OrchestratorConfig
-    from app.utility.base_service import BaseService
     
-    log = BaseService.create_logger('orchestrator')
+    log = logging.getLogger('orchestrator')
     
     try:
         # Validate configuration
@@ -69,11 +70,9 @@ async def disable(services):
     Args:
         services: Caldera service registry
     """
-    from app.utility.base_service import BaseService
-    
     orchestrator_svc = services.get('orchestrator_svc')
     
     if orchestrator_svc:
         await orchestrator_svc.shutdown()
-        log = BaseService.create_logger('orchestrator')
+        log = logging.getLogger('orchestrator')
         log.info('Orchestrator plugin disabled')
