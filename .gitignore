@@ -1,3 +1,48 @@
 .github/copilot-instructions.md
 .github/prompts/plan-pocImplementationPlan.prompt.md
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+venv/
+env/
+.venv
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build artifacts
+*/dist/
+*.log
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Caldera
+/data/results/
+/data/backup/
+/logs/
+/tmp/
 /Users/tonyto/Documents/GitHub/Triskele Labs/Internship_C/.gitignore
