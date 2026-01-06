@@ -57,3 +57,4 @@ users:
   red:
     admin: admin
     red: admin
+crypt_salt: "${CRYPT_SALT:-TriskeleLabsFork2026!!}"
