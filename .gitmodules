@@ -1,7 +1,0 @@
-[submodule "plugins/atomic"]
-	path = plugins/atomic
-	url = https://github.com/mitre/atomic.git
-
-[submodule "plugins/sandcat"]
-	path = plugins/sandcat
-	url = https://github.com/mitre/sandcat.git
