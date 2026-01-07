@@ -1,6 +1,8 @@
 <script setup>
 import { ref, inject } from "vue";
 import { useAuthStore } from "../stores/authStore.js";
+
+const logoLargePath = '/branding/static/img/triskele_logo_large.svg';
 let username = ref("");
 let password = ref("");
 let loginError = ref("");
@@ -19,7 +21,7 @@ async function handleLogin(e) {
 
 <template lang="pug">
 #login.container.content.fullwh.is-flex.is-flex-direction-column.is-align-items-center.is-justify-content-center()
-    img(src="/branding/static/img/triskele_logo_large.svg" alt="Triskele Labs Logo")
+    img(:src="logoLargePath" alt="Triskele Labs Logo")
     .p-6
         form
             .field
@@ -46,11 +48,25 @@ async function handleLogin(e) {
 
 #login img {
     width: 250px;
-    margin: 16px;
+    margin: 8px 16px;
+    border: 2px solid var(--triskele-teal);
+    border-radius: 8px;
+    padding: 12px;
+    background-color: white;
+}
+
+#login .p-6 {
+    padding: 1.5rem !important;
+}
+
+#login .input {
+    border: 2px solid var(--triskele-teal) !important;
+    border-radius: 8px !important;
 }
 
 .fancy-button:hover {
-    background-image: linear-gradient(to right, #8b0000, #191970) !important;
+    background-color: var(--triskele-teal) !important;
+    background-image: none !important;
     border-width: 2px;
 }
 </style>

@@ -1,30 +1,32 @@
 /**
  * Triskele Labs Branding Override
- * Version: 1.1 (Updated with correct logo paths)
+ * Version: 2.0 (Modern 2026 UI/UX Refresh)
  * Date: January 2026
  * 
- * Color Palette:
- * - Primary Blue: #0f3460
- * - Accent Teal: #16a085
+ * Modern Color Palette:
+ * - Primary Indigo: #6366F1 (Modern SaaS blue)
+ * - Accent Cyan: #06B6D4 (Fresh, tech-forward)
+ * - Dark Slate: #0F172A (Softer dark mode)
  */
 
 /* ============================================
    1. CSS VARIABLES
    ============================================ */
 :root {
-    --triskele-blue: #0f3460;
-    --triskele-teal: #16a085;
-    --triskele-dark: #1a1a2e;
-    --triskele-light: #ecf0f1;
+    /* Modern 2026 Palette */
+    --triskele-blue: #6366F1;      /* Indigo - Primary */
+    --triskele-teal: #06B6D4;      /* Cyan - Accent */
+    --triskele-dark: #000000;      /* Pure Black - Dark bg */
+    --triskele-light: #F8FAFC;     /* Soft white */
     
     --primary-color: var(--triskele-blue);
     --accent-color: var(--triskele-teal);
-    --bg-color: #f8f9fa;
-    --text-color: #2c3e50;
+    --bg-color: #F1F5F9;           /* Light mode bg */
+    --text-color: #1E293B;         /* Dark slate text */
     
-    --success-color: #27ae60;
-    --warning-color: #f39c12;
-    --danger-color: #e74c3c;
+    --success-color: #10B981;      /* Emerald */
+    --warning-color: #F59E0B;      /* Amber */
+    --danger-color: #EF4444;       /* Red */
 }
 
 /* ============================================
@@ -71,6 +73,9 @@ img[alt*="Caldera"] {
     max-height: 40px !important;
     width: auto !important;
     padding: 5px 0;
+    background-color: white !important;
+    padding: 8px !important;
+    border-radius: 4px;
 }
 
 /* Option 2: Use PNG as fallback for older browsers */
@@ -88,6 +93,9 @@ img[alt*="Caldera"] {
     content: url('/branding/static/img/triskele_logo_large.svg') !important;
     max-width: 400px !important;
     height: auto !important;
+    background-color: white !important;
+    padding: 16px !important;
+    border-radius: 8px;
 }
 
 /* Logo container */
@@ -146,8 +154,9 @@ button.btn-primary:hover {
 
 .card-body,
 .panel-body {
-    background-color: white;
-    color: var(--text-color);
+    background-color: #0a0a0a;
+    color: var(--triskele-light);
+    border: 1px solid #1a1a1a;
 }
 
 .card:hover {
@@ -195,6 +204,7 @@ button.btn-primary:hover {
 .sidebar-dark {
     background-color: var(--triskele-dark) !important;
     color: var(--triskele-light);
+    border-right: 1px solid #1a1a1a;
 }
 
 .sidebar .nav-link,
@@ -219,11 +229,11 @@ button.btn-primary:hover {
 }
 
 .table tbody tr:hover {
-    background-color: rgba(15, 52, 96, 0.05) !important;
+    background-color: rgba(6, 182, 212, 0.1) !important;
 }
 
 .table-striped tbody tr:nth-of-type(odd) {
-    background-color: rgba(15, 52, 96, 0.02);
+    background-color: rgba(6, 182, 212, 0.05);
 }
 
 /* ============================================
@@ -231,12 +241,12 @@ button.btn-primary:hover {
    ============================================ */
 .footer,
 footer {
-    background-color: var(--triskele-blue) !important;
+    background-color: var(--triskele-dark) !important;
     color: white !important;
     padding: 15px 0;
     text-align: center;
     margin-top: 40px;
-    border-top: 3px solid var(--triskele-teal);
+    border-top: none;
 }
 
 .footer a,
@@ -340,7 +350,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 ::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: #0a0a0a;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -383,4 +393,166 @@ h1, h2, h3, h4, h5, h6 {
     .navbar-nav {
         flex-direction: column;
     }
+}
+
+/* ============================================
+   21. VUE SPA COMPATIBILITY (MAGMA PLUGIN)
+   ============================================ */
+
+/* Ensure proper background for Vue app container */
+html, body {
+    background-color: var(--triskele-dark, #000000) !important;
+    color: var(--triskele-light, #ecf0f1) !important;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+#app {
+    min-height: 100vh;
+    background-color: var(--triskele-dark, #000000);
+    color: var(--triskele-light, #ecf0f1);
+}
+
+/* Loading state placeholder - shows when Vue hasn't mounted yet */
+#app:empty {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #000000;
+}
+
+#app:empty::before {
+    content: "Loading Triskele Labs Platform...";
+    color: var(--triskele-teal, #16a085);
+    font-size: 1.5rem;
+    font-weight: 600;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+/* ============================================
+   22. BULMA FRAMEWORK OVERRIDES (TRISKELE COLORS)
+   ============================================ */
+
+/* Override Bulma's default purple with Triskele Blue */
+.tab.is-active {
+    background-color: var(--triskele-blue, #0f3460) !important;
+}
+
+.tab:hover {
+    background-color: var(--triskele-teal, #16a085) !important;
+}
+
+.menu-label {
+    border-bottom: 2px solid var(--success-color, #10B981) !important;
+    color: var(--success-color, #10B981) !important;
+}
+
+hr {
+    background-color: var(--triskele-teal, #16a085) !important;
+}
+
+/* Bulma button overrides */
+.button.is-primary {
+    background-color: var(--triskele-blue, #0f3460) !important;
+    border-color: var(--triskele-blue, #0f3460) !important;
+    color: white !important;
+}
+
+.button.is-primary:hover {
+    background-color: #1a4d7a !important;
+    border-color: #1a4d7a !important;
+}
+
+.button.is-link {
+    background-color: var(--triskele-teal, #16a085) !important;
+    border-color: var(--triskele-teal, #16a085) !important;
+}
+
+.button.is-link:hover {
+    background-color: #138d75 !important;
+}
+
+.button.is-info {
+    background-color: var(--triskele-teal, #16a085) !important;
+    border-color: var(--triskele-teal, #16a085) !important;
+}
+
+/* Bulma has-background overrides */
+.has-background-primary,
+.has-background-primary-dark {
+    background-color: var(--triskele-blue, #0f3460) !important;
+}
+
+.has-background-link {
+    background-color: var(--triskele-teal, #16a085) !important;
+}
+
+/* Text color classes */
+.has-text-primary {
+    color: var(--triskele-blue, #0f3460) !important;
+}
+
+.has-text-link {
+    color: var(--triskele-teal, #16a085) !important;
+}
+
+/* Navigation sidebar overrides for Magma */
+.menu-list a.is-active {
+    background-color: var(--triskele-blue, #0f3460) !important;
+    color: white !important;
+}
+
+.menu-list a:hover {
+    background-color: rgba(22, 160, 133, 0.2) !important;
+    color: var(--triskele-teal, #16a085) !important;
+}
+
+/* Modal and card headers */
+.modal-card-head {
+    background-color: var(--triskele-blue, #0f3460) !important;
+    border-bottom: 2px solid var(--triskele-teal, #16a085);
+}
+
+.modal-card-title {
+    color: white !important;
+}
+
+/* Progress bars */
+.progress.is-primary::-webkit-progress-value {
+    background-color: var(--triskele-blue, #0f3460) !important;
+}
+
+.progress.is-link::-webkit-progress-value {
+    background-color: var(--triskele-teal, #16a085) !important;
+}
+
+/* Tags */
+.tag.is-primary {
+    background-color: var(--triskele-blue, #0f3460) !important;
+    color: white !important;
+}
+
+.tag.is-link,
+.tag.is-info {
+    background-color: var(--triskele-teal, #16a085) !important;
+    color: white !important;
+}
+
+/* Notification boxes */
+.notification.is-primary {
+    background-color: rgba(15, 52, 96, 0.9) !important;
+    color: white !important;
+}
+
+.notification.is-link,
+.notification.is-info {
+    background-color: rgba(22, 160, 133, 0.9) !important;
+    color: white !important;
 }

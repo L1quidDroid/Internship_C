@@ -462,7 +462,7 @@ DeleteAdversaryConfirmationModal
 .red-row-unclickable {
     pointer-events: none;
     font-weight: bold;
-    border: 3px solid #8B0000;
+    border: 3px solid #e74c3c;
 }
 
 .lock {

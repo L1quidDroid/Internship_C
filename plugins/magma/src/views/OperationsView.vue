@@ -543,6 +543,6 @@ a.icon {
 }
 
 .highlight-link {
-  border: 2px solid #8b00ff;
+  border: 2px solid #16a085;
 }
 </style>

@@ -105,21 +105,15 @@
         if (!footer.classList.contains('triskele-branded-footer')) {
             footer.innerHTML = `
                 <div class="footer-content" style="
-                    background-color: #0f3460;
+                    background-color: #000000;
                     color: white;
                     padding: 15px 20px;
                     text-align: center;
-                    border-top: 3px solid #16a085;
+                    border-top: none;
                     font-size: 14px;
                 ">
                     <p style="margin: 5px 0;">
-                        ${CONFIG.poweredBy}
-                    </p>
-                    <p style="margin: 5px 0; opacity: 0.8;">
-                        ${CONFIG.copyright} | 
-                        <a href="${CONFIG.website}" target="_blank" style="color: #16a085; text-decoration: none;">
-                            ${CONFIG.website}
-                        </a>
+                        ${CONFIG.copyright}
                     </p>
                 </div>
             `;

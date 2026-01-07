@@ -333,7 +333,7 @@ const getAgentTooltipContent = (agent) => {
   background-color: #383838;
   padding-top: 0.8rem;
   padding-bottom: 0.8rem;
-  border: 1px solid #8b00ff;
+  border: 1px solid #0f3460;
   border-bottom: 0px;
 }
 
@@ -352,7 +352,7 @@ const getAgentTooltipContent = (agent) => {
   flex-direction: row;
   justify-content: space-between;
   margin-bottom: 1rem;
-  border: 1px solid #8b00ff;
+  border: 1px solid #0f3460;
   border-top: 0px;
   /* min-height: 30rem; */
   transition: height 0.5s;
@@ -360,7 +360,7 @@ const getAgentTooltipContent = (agent) => {
 
 .graph {
   background-color: #000;
-  border-right: 1px solid #8b00ff;
+  border-right: 1px solid #0f3460;
 }
 
 .tooltip-wrapper {

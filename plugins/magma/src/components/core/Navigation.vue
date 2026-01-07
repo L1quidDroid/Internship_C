@@ -1,5 +1,5 @@
 <script setup>
-import { inject } from "vue";
+import { inject, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useRoute, useRouter } from "vue-router";
 import { useCoreStore } from "@/stores/coreStore";
@@ -13,6 +13,9 @@ const coreStore = useCoreStore();
 const { modals } = storeToRefs(coreDisplayStore);
 const { enabledPlugins, availablePlugins, userSettings, hideDisabledPlugins } =
   storeToRefs(coreStore);
+
+// Logo path as string constant to prevent Vite from bundling
+const logoPath = '/branding/static/img/triskele_logo.svg';
 const { group, version } = storeToRefs(authStore);
 
 const router = useRouter();
@@ -44,9 +47,9 @@ function promptToEnablePlugin(pluginName) {
         a.icon(@click="coreStore.modifyUserSettings('collapseNavigation', !userSettings.collapseNavigation)")
             font-awesome-icon(:icon="userSettings.collapseNavigation ? 'fas fa-angles-right' : 'fas fa-angles-left'")
     #logo(v-if="!userSettings.collapseNavigation")
-        img(src="/branding/static/img/triskele_logo.svg" alt="Triskele Labs Logo" @click="router.push('/')")
+        img(:src="logoPath" alt="Triskele Labs Logo" @click="router.push('/')")
     #logo-collapsed(v-if="userSettings.collapseNavigation")
-        img(src="/branding/static/img/triskele_logo.svg" alt="Triskele Labs Logo" @click="router.push('/')")
+        img(:src="logoPath" alt="Triskele Labs Logo" @click="router.push('/')")
     #user-info(v-if="!userSettings.collapseNavigation")
       div.team-container
         span.icon(:class="{ 'is-red': group === 'RED', 'is-blue': group === 'BLUE'}")

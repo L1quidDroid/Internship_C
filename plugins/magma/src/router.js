@@ -20,7 +20,7 @@ import ExfilledFilesView from "./views/ExfilledFilesView.vue";
 import PluginView from "./views/PluginView.vue";
 import NotFoundView from "./views/NotFoundView.vue";
 
-// Cant use global API variable because we aren't in a component
+// Can't use global API variable because we aren't in a component
 const $api = axios.create({
   withCredentials: true,
   baseURL: window.location.origin,
@@ -131,6 +131,12 @@ router.beforeEach(async (to) => {
   const publicPages = ["/login"];
   const authRequiredPages = !publicPages.includes(to.path);
   const auth = useAuthStore();
+  
+  // Skip auth check if already on login page to prevent infinite loop
+  if (to.path === "/login" && !auth.isUserAuthenticated) {
+    return;
+  }
+  
   // Check that the user is authenticated before each page in case something changes in server
   auth.isUserAuthenticated = await auth.getAuthStatus($api);
   if (to.path == "/login" && auth.isUserAuthenticated) {
