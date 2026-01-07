@@ -34,8 +34,8 @@
    ============================================ */
 .navbar,
 .navbar-default {
-    background-color: var(--triskele-blue) !important;
-    border-color: var(--triskele-blue) !important;
+    background-color: #000000 !important;
+    border-color: #000000 !important;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
@@ -147,7 +147,7 @@ button.btn-primary:hover {
    ============================================ */
 .card-header,
 .panel-heading {
-    background-color: var(--triskele-blue) !important;
+    background-color: #000000 !important;
     color: white !important;
     border-bottom: 2px solid var(--triskele-teal);
 }
@@ -223,9 +223,9 @@ button.btn-primary:hover {
    ============================================ */
 .table thead th,
 .table-header {
-    background-color: var(--triskele-blue) !important;
+    background-color: #000000 !important;
     color: white !important;
-    border-color: var(--triskele-blue) !important;
+    border-color: #000000 !important;
 }
 
 .table tbody tr:hover {
@@ -289,7 +289,7 @@ select:focus {
    13. MODALS
    ============================================ */
 .modal-header {
-    background-color: var(--triskele-blue) !important;
+    background-color: #000000 !important;
     color: white !important;
 }
 
@@ -516,7 +516,7 @@ hr {
 
 /* Modal and card headers */
 .modal-card-head {
-    background-color: var(--triskele-blue, #0f3460) !important;
+    background-color: #000000 !important;
     border-bottom: 2px solid var(--triskele-teal, #16a085);
 }
 

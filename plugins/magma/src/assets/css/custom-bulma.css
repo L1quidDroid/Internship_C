@@ -7,7 +7,7 @@
 :root {
   --triskele-blue: #0f3460;
   --triskele-teal: #16a085;
-  --triskele-dark: #1a1a2e;
+  --triskele-dark: #000000;
   --triskele-light: #ecf0f1;
 }
 
@@ -15,7 +15,7 @@ html, body, #app {
   width: 100%;
   min-height: 100vh;
   height: auto;
-  background-color: var(--triskele-dark, #1a1a2e);
+  background-color: var(--triskele-dark, #000000);
   color: var(--triskele-light, #ecf0f1);
 }
 
