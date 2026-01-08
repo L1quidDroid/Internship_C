@@ -88,6 +88,14 @@ async def enable(services):
         )
         logger.info('✅ Reporting plugin: REST API registered at GET /plugin/reporting/list')
         
+        # Download endpoint for PDF retrieval
+        app.router.add_route(
+            'GET',
+            '/plugin/reporting/download/{op_id}',
+            report_svc.download_report
+        )
+        logger.info('✅ Reporting plugin: REST API registered at GET /plugin/reporting/download/{op_id}')
+        
         # Subscribe to operation completion events
         if event_svc:
             await event_svc.observe_event(

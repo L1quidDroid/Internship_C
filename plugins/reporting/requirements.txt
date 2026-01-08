@@ -1,0 +1,14 @@
+# TL Labs Reporting Plugin Dependencies
+# Install: pip install -r plugins/reporting/requirements.txt
+
+# PDF Generation
+reportlab>=4.0.0
+
+# Image processing (logo embedding)
+Pillow>=9.0.0
+
+# Elasticsearch client (for detection correlation)
+elasticsearch[async]>=8.0.0
+
+# Async HTTP (if needed for external APIs)
+aiohttp>=3.8.0

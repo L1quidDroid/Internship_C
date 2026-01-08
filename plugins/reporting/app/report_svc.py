@@ -42,6 +42,14 @@ from aiohttp import web
 from plugins.reporting.app.pdf_generator import PDFGenerator
 from plugins.reporting.app.config import ReportingConfig
 
+# Optional ELK integration (graceful fallback if unavailable)
+try:
+    from plugins.reporting.app.elk_fetcher import ELKFetcher
+    _elk_available = True
+except ImportError:
+    _elk_available = False
+    ELKFetcher = None
+
 
 class ReportService:
     """
@@ -108,6 +116,17 @@ class ReportService:
         
         # Initialize PDF generator (contains ReportLab logic)
         self.pdf_generator = PDFGenerator(self.config)
+        
+        # Initialize ELK fetcher for detection correlation (optional)
+        self.elk_fetcher = None
+        if _elk_available and ELKFetcher:
+            try:
+                self.elk_fetcher = ELKFetcher(self.config, self.log)
+                self.log.info('✅ ELK fetcher initialized for detection correlation')
+            except Exception as e:
+                self.log.warning(f'ELK fetcher initialization failed (non-fatal): {e}')
+        else:
+            self.log.info('ELK fetcher not available, detection correlation disabled')
         
         # ✅ MARCUS FIX: Single executor initialized once (not per request)
         self._executor = ThreadPoolExecutor(
@@ -182,10 +201,20 @@ class ReportService:
             self._active_reports.add(operation_id)
             
             try:
+                # Fetch detection data from ELK (non-blocking, with fallback)
+                detection_data = None
+                if self.elk_fetcher:
+                    try:
+                        detection_data = await self.elk_fetcher.get_detection_data(operation_id)
+                        self.log.info(f"Detection data fetched: {detection_data.get('summary', {})}")
+                    except Exception as elk_error:
+                        self.log.warning(f"ELK fetch failed (non-fatal): {elk_error}")
+                        detection_data = {'available': False, 'reason': str(elk_error)[:100]}
+                
                 # Generate PDF asynchronously (runs in ThreadPoolExecutor)
                 self.log.info(f"🚀 Manual report generation requested for operation {operation_id}")
                 
-                pdf_path = await self.pdf_generator.generate(operation)
+                pdf_path = await self.pdf_generator.generate(operation, detection_data)
                 
                 if not pdf_path:
                     return web.json_response(
@@ -233,11 +262,15 @@ class ReportService:
                 status=500
             )
     
-    async def on_operation_completed(self, operation_id: str) -> None:
+    async def on_operation_completed(self, op: Optional[str] = None, **kwargs) -> None:
         """
         Event handler: Auto-generate PDF when operation finishes.
         
         **This is the 6x efficiency proof for Tahsinur!**
+        
+        Args:
+            op: Operation ID string (Caldera passes ID, not object)
+            **kwargs: Event metadata
         
         Workflow:
             1. Operation finishes (Caldera sets state='finished')
@@ -255,10 +288,20 @@ class ReportService:
             - Automated process: 8.5s (click Stop → PDF appears)
             - Savings: 41.5s per operation (82% faster)
         """
+        # Handle both old (operation_id) and new (op) parameter names
+        operation_id = op
+        if not operation_id:
+            self.log.warning('[reporting] Completed event missing operation ID')
+            return
+        
         # Event latency tracking
         event_received_time = asyncio.get_event_loop().time()
         
         # Fetch operation from data_svc
+        if not self.data_svc:
+            self.log.error('[reporting] data_svc not available')
+            return
+        
         operations = await self.data_svc.locate('operations', match=dict(id=operation_id))
         
         if not operations:
@@ -284,8 +327,18 @@ class ReportService:
             # Log auto-generation start
             self.log.info(f"🚀 Auto-generating report for operation: {operation.name} ({operation_id})")
             
+            # Fetch detection data from ELK (non-blocking, with fallback)
+            detection_data = None
+            if self.elk_fetcher:
+                try:
+                    detection_data = await self.elk_fetcher.get_detection_data(operation_id)
+                    self.log.info(f"Detection data fetched: {detection_data.get('summary', {})}")
+                except Exception as elk_error:
+                    self.log.warning(f"ELK fetch failed (non-fatal): {elk_error}")
+                    detection_data = {'available': False, 'reason': str(elk_error)[:100]}
+            
             # Generate PDF asynchronously
-            pdf_path = await self.pdf_generator.generate(operation)
+            pdf_path = await self.pdf_generator.generate(operation, detection_data)
             
             if not pdf_path:
                 self.log.warning(f"PDF generation returned None for operation {operation_id}")
@@ -432,5 +485,87 @@ class ReportService:
         self._executor.shutdown(wait=True)
         
         self.log.info("✅ Report service shutdown complete")
-def get_logger(self):
-    return self.log
+    
+    def get_logger(self):
+        """Return the service logger."""
+        return self.log
+    
+    async def download_report(self, request: web.Request) -> web.Response:
+        """
+        REST API endpoint: GET /plugin/reporting/download/{op_id}
+        
+        Returns PDF file as binary download.
+        
+        Args:
+            request: aiohttp request with op_id in path
+        
+        Response:
+            Success: PDF bytes with Content-Type: application/pdf
+            Error: JSON with error message (HTTP 404 if not found)
+        """
+        try:
+            op_id = request.match_info.get('op_id')
+            
+            if not op_id:
+                return web.json_response(
+                    {'success': False, 'error': 'op_id required in path'},
+                    status=400
+                )
+            
+            # Find report file matching operation ID
+            report_dir = self.config.output_dir
+            
+            if not report_dir.exists():
+                return web.json_response(
+                    {'success': False, 'error': 'No reports directory'},
+                    status=404
+                )
+            
+            # Search for PDF containing operation ID or name
+            matching_files = []
+            for pdf_file in report_dir.glob('*.pdf'):
+                # Check if op_id is in filename (reports are named like operation_name_timestamp.pdf)
+                if op_id[:8] in pdf_file.name or op_id in pdf_file.name:
+                    matching_files.append(pdf_file)
+            
+            # Also check by looking up operation name
+            if not matching_files and self.data_svc:
+                operations = await self.data_svc.locate('operations', match=dict(id=op_id))
+                if operations:
+                    op_name = getattr(operations[0], 'name', '').replace(' ', '_').lower()
+                    for pdf_file in report_dir.glob('*.pdf'):
+                        if op_name and op_name in pdf_file.name.lower():
+                            matching_files.append(pdf_file)
+            
+            if not matching_files:
+                self.log.warning(f"No report found for operation {op_id}")
+                return web.json_response(
+                    {'success': False, 'error': f'No report found for operation {op_id}'},
+                    status=404
+                )
+            
+            # Return most recent matching file
+            matching_files.sort(key=lambda f: f.stat().st_mtime, reverse=True)
+            pdf_path = matching_files[0]
+            
+            self.log.info(f"Serving report download: {pdf_path.name}")
+            
+            # Read and return PDF bytes
+            with open(pdf_path, 'rb') as f:
+                pdf_bytes = f.read()
+            
+            return web.Response(
+                body=pdf_bytes,
+                content_type='application/pdf',
+                headers={
+                    'Content-Disposition': f'attachment; filename="{pdf_path.name}"',
+                    'Content-Length': str(len(pdf_bytes))
+                }
+            )
+        
+        except Exception as e:
+            self.log.exception(f"Failed to download report for {op_id}: {e}")
+            return web.json_response(
+                {'success': False, 'error': str(e)},
+                status=500
+            )

@@ -361,18 +361,145 @@ class PDFGenerator:
         
         return elements
     
-    def _generate_pdf_sync(self, operation, filename: str) -> Path:
+    def _build_detection_summary(self, detection_data: dict) -> list:
+        """
+        Build SIEM detection coverage summary section.
+        
+        Shows correlation between executed techniques and SIEM detections
+        from purple-team-logs-* Elasticsearch index.
+        
+        Args:
+            detection_data: Dict from ELKFetcher.get_detection_data()
+            
+        Returns:
+            List of flowables
+        """
+        elements = []
+        
+        elements.append(Paragraph("Detection Coverage", self.styles['TLSubtitle']))
+        elements.append(Spacer(1, 0.1 * inch))
+        
+        # Check if data available
+        if not detection_data.get('available', False):
+            reason = detection_data.get('reason', 'ELK data unavailable')
+            elements.append(Paragraph(
+                f"<i>Detection correlation unavailable: {reason}</i>",
+                self.styles['TLBody']
+            ))
+            elements.append(Spacer(1, 0.2 * inch))
+            return elements
+        
+        summary = detection_data.get('summary', {})
+        techniques = detection_data.get('techniques', {})
+        
+        # Summary statistics
+        detected = summary.get('detected', 0)
+        evaded = summary.get('evaded', 0)
+        pending = summary.get('pending', 0)
+        coverage = summary.get('coverage_percent', 0.0)
+        
+        # Summary text
+        total_techniques = len(techniques)
+        summary_text = f"""
+        Detection correlation analyzed <b>{total_techniques}</b> techniques from 
+        Elasticsearch purple-team-logs. Current detection coverage: <b>{coverage:.1f}%</b>.
+        """
+        elements.append(Paragraph(summary_text, self.styles['TLBody']))
+        elements.append(Spacer(1, 0.15 * inch))
+        
+        # Detection summary table
+        summary_data = [
+            ['Detection Status', 'Count', 'Percentage'],
+            ['✓ Detected', str(detected), f"{(detected / max(total_techniques, 1)) * 100:.1f}%"],
+            ['✗ Evaded', str(evaded), f"{(evaded / max(total_techniques, 1)) * 100:.1f}%"],
+            ['⏳ Pending', str(pending), f"{(pending / max(total_techniques, 1)) * 100:.1f}%"],
+        ]
+        
+        summary_table = Table(summary_data, colWidths=[2 * inch, 1 * inch, 1.5 * inch])
+        summary_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2c3e50')),  # Dark header
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+            ('TOPPADDING', (0, 0), (-1, -1), 8),
+            ('GRID', (0, 0), (-1, -1), 1, colors.grey),
+            # Color-code rows based on status
+            ('BACKGROUND', (0, 1), (-1, 1), colors.HexColor('#d5f5e3')),  # Green for detected
+            ('BACKGROUND', (0, 2), (-1, 2), colors.HexColor('#fadbd8')),  # Red for evaded
+            ('BACKGROUND', (0, 3), (-1, 3), colors.HexColor('#fef9e7')),  # Yellow for pending
+        ]))
+        
+        elements.append(summary_table)
+        elements.append(Spacer(1, 0.2 * inch))
+        
+        # Per-technique detection status (if we have technique-level data)
+        if techniques:
+            elements.append(Paragraph("Technique Detection Status", self.styles['TLSubtitle']))
+            elements.append(Spacer(1, 0.1 * inch))
+            
+            tech_data = [['Technique ID', 'Detection Status', 'Event Count']]
+            
+            # Sort by status (detected first, then evaded, then pending)
+            status_order = {'detected': 0, 'evaded': 1, 'pending': 2}
+            sorted_techniques = sorted(
+                techniques.items(),
+                key=lambda x: (status_order.get(x[1].get('status', 'pending'), 3), x[0])
+            )
+            
+            for tech_id, tech_info in sorted_techniques[:30]:  # Limit to 30 techniques
+                status = tech_info.get('status', 'pending')
+                count = tech_info.get('count', 0)
+                
+                # Status display with emoji
+                status_display = {
+                    'detected': '✓ Detected',
+                    'evaded': '✗ Evaded',
+                    'pending': '⏳ Pending'
+                }.get(status, status)
+                
+                tech_data.append([tech_id, status_display, str(count)])
+            
+            if len(techniques) > 30:
+                tech_data.append(['...', f'+{len(techniques) - 30} more', ''])
+            
+            tech_table = Table(tech_data, colWidths=[1.5 * inch, 2 * inch, 1.5 * inch])
+            tech_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor(self.config.accent_color)),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, -1), 9),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+                ('TOPPADDING', (0, 0), (-1, -1), 6),
+                ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.lightgrey]),
+            ]))
+            
+            elements.append(tech_table)
+        
+        elements.append(Spacer(1, 0.3 * inch))
+        
+        return elements
+    
+    def _generate_pdf_sync(self, operation, filename: str, detection_data: Optional[dict] = None) -> Path:
         """
         Synchronous PDF generation (runs in ThreadPoolExecutor).
         
         Args:
             operation: Caldera operation object
             filename: Output filename
+            detection_data: Optional ELK detection correlation data
             
         Returns:
             Path to generated PDF
         """
         output_path = self.config.output_dir / filename
+        
+        # Default empty detection data if not provided
+        if detection_data is None:
+            detection_data = {'available': False, 'reason': 'Not fetched'}
         
         # Choose page size
         page_sizes = {
@@ -410,6 +537,9 @@ class PDFGenerator:
         if self.config.include_tactic_coverage:
             elements.extend(self._build_tactic_coverage(operation))
         
+        # Detection coverage (from ELK correlation)
+        elements.extend(self._build_detection_summary(detection_data))
+        
         # Technique details
         if self.config.include_technique_details:
             elements.extend(self._build_technique_table(operation))
@@ -428,12 +558,13 @@ class PDFGenerator:
         logger.info(f"PDF generated successfully: {output_path}")
         return output_path
     
-    async def generate(self, operation) -> Optional[Path]:
+    async def generate(self, operation, detection_data: Optional[dict] = None) -> Optional[Path]:
         """
         Generate PDF report asynchronously with timeout protection.
         
         Args:
             operation: Caldera operation object
+            detection_data: Optional ELK detection correlation data
             
         Returns:
             Path to generated PDF or None on error
@@ -465,7 +596,8 @@ class PDFGenerator:
                     self.executor,
                     self._generate_pdf_sync,
                     operation,
-                    filename
+                    filename,
+                    detection_data
                 ),
                 timeout=self.config.generation_timeout
             )
