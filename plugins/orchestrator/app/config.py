@@ -31,11 +31,13 @@ class OrchestratorConfig:
     _log = logging.getLogger('orchestrator.config')
     
     # Default values (overridden by conf/local.yml or env vars)
-    ELK_URL = 'http://20.28.49.97:9200'
+    # ⚠️ SECURITY: Set credentials via environment variables, not here!
+    # Export ELK_PASS or ORCHESTRATOR_ELK_PASS before starting Caldera
+    ELK_URL = 'http://localhost:9200'
     ELK_INDEX = 'purple-team-logs'
-    ELK_API_KEY = ''
+    ELK_API_KEY = ''  # Preferred: Use API key auth
     ELK_USER = 'elastic'
-    ELK_PASS = 'ms4FiYr-C1bx0F1=GFrM'
+    ELK_PASS = ''  # Set via ELK_PASS env var
     ELK_VERIFY_SSL = False
     ELK_CONNECTION_TIMEOUT = 30
     ELK_MAX_RETRIES = 3

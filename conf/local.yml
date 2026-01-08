@@ -5,17 +5,21 @@
 # ============================================
 # Orchestrator Plugin Configuration
 # ============================================
+# ⚠️ SECURITY: Set ELK credentials via environment variables:
+#   export ELK_URL="http://20.28.49.97:9200"
+#   export ELK_USER="elastic"
+#   export ELK_PASS="your-password-here"
+# Or use .env file (see .env.example)
+
 plugins:
   orchestrator:
     # Elasticsearch / ELK Stack Settings
-    elk_url: "http://20.28.49.97:9200"
+    # elk_url loaded from ELK_URL env var
     elk_index: "purple-team-logs"
     
-    # Authentication (API key preferred, basic auth fallback)
-    # Generate API key: POST /_security/api_key with caldera-orchestrator permissions
-    elk_api_key: ""  # Leave empty to use basic auth
-    elk_user: "elastic"
-    elk_pass: "ms4FiYr-C1bx0F1=GFrM"
+    # Authentication (set via env vars for security)
+    # elk_api_key: ""  # Generate: POST /_security/api_key
+    # elk_user/elk_pass loaded from ELK_USER/ELK_PASS env vars
     
     # Connection settings
     elk_verify_ssl: false

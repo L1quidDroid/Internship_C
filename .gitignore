@@ -1,6 +1,11 @@
 .github/copilot-instructions.md
 .github/prompts/plan-pocImplementationPlan.prompt.md
 
+# Environment & Secrets (NEVER commit these!)
+.env
+.env.local
+conf/local.yml
+
 # Python
 __pycache__/
 *.py[cod]
