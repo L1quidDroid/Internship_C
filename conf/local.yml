@@ -5,11 +5,29 @@
 # ============================================
 # Orchestrator Plugin Configuration
 # ============================================
+plugins:
+  orchestrator:
+    # Elasticsearch / ELK Stack Settings
+    elk_url: "http://20.28.49.97:9200"
+    elk_index: "purple-team-logs"
+    
+    # Authentication (API key preferred, basic auth fallback)
+    # Generate API key: POST /_security/api_key with caldera-orchestrator permissions
+    elk_api_key: ""  # Leave empty to use basic auth
+    elk_user: "elastic"
+    elk_pass: "ms4FiYr-C1bx0F1=GFrM"
+    
+    # Connection settings
+    elk_verify_ssl: false
+    elk_connection_timeout: 30
+    elk_max_retries: 3
+
+# Legacy elk config (deprecated - use plugins.orchestrator.elk_* instead)
 elk:
-  url: http://localhost:9200  # ⚠️ REPLACE with actual TL Labs ELK IP
+  url: http://20.28.49.97:9200
   index: purple-team-logs
-  api_key: ""  # Optional: Set in .env for security
-  verify_ssl: false  # Set true in production
+  api_key: ""
+  verify_ssl: false
   connection_timeout: 30
   max_retries: 3
 
@@ -18,6 +36,7 @@ plugins:
   - sandcat
   - stockpile
   - atomic
-  - emu
   - magma
-  - orchestrator  # ✨ NEW
+  - orchestrator  # ✨ TL Labs Purple Team Automation
+  - reporting
+  - branding

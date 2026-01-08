@@ -46,3 +46,5 @@ Thumbs.db
 /logs/
 /tmp/
 /Users/tonyto/Documents/GitHub/Triskele Labs/Internship_C/.gitignore
+docs/PURPLE_TEAM_USER_GUIDE.md
+.github/orchestrator fix

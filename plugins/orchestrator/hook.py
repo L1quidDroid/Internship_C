@@ -2,6 +2,7 @@
 Orchestrator plugin event registration.
 
 Registers with Caldera plugin system and subscribes to operation events via event_svc.
+Provides debug API endpoints: /plugin/orchestrator/status and /plugin/orchestrator/tag-test
 """
 
 import logging
@@ -16,6 +17,7 @@ async def enable(services):
     Enable orchestrator plugin.
     
     Called by Caldera when plugin loads.
+    Registers event handlers and debug API routes.
     
     Args:
         services: Caldera service registry
@@ -34,6 +36,29 @@ async def enable(services):
         orchestrator_svc = OrchestratorService(services)
         services['orchestrator_svc'] = orchestrator_svc
         
+        # Register debug API routes (aiohttp)
+        app_svc = services.get('app_svc')
+        if app_svc and hasattr(app_svc, 'application'):
+            app = app_svc.application
+            
+            # GET /plugin/orchestrator/status - Health check
+            app.router.add_route('GET', '/plugin/orchestrator/status', 
+                               orchestrator_svc.status_endpoint)
+            
+            # POST /plugin/orchestrator/tag-test - Manual tag test
+            app.router.add_route('POST', '/plugin/orchestrator/tag-test', 
+                               orchestrator_svc.tag_test_endpoint)
+            
+            # Also support GET for easy browser testing
+            app.router.add_route('GET', '/plugin/orchestrator/tag-test', 
+                               orchestrator_svc.tag_test_endpoint)
+            
+            log.info('✅ Orchestrator API routes registered:')
+            log.info('   GET  /plugin/orchestrator/status')
+            log.info('   POST /plugin/orchestrator/tag-test')
+        else:
+            log.warning('app_svc not available, API routes not registered')
+        
         # Subscribe to operation events via event_svc
         event_svc = services.get('event_svc')
         
@@ -50,11 +75,15 @@ async def enable(services):
                 queue='completed'
             )
             
-            log.info('✅ Orchestrator plugin enabled successfully')
-            log.info(f'   ELK URL: {OrchestratorConfig.ELK_URL}')
-            log.info(f'   ELK Index: {OrchestratorConfig.ELK_INDEX}')
+            log.info('✅ Orchestrator event handlers registered:')
+            log.info('   operation/state_changed')
+            log.info('   operation/completed')
         else:
             log.warning('event_svc not available, event subscriptions skipped')
+        
+        log.info('✅ Orchestrator plugin enabled successfully')
+        log.info(f'   ELK URL: {OrchestratorConfig.ELK_URL}')
+        log.info(f'   ELK Index: {OrchestratorConfig.ELK_INDEX}')
         
     except Exception as e:
         log.error(f'❌ Orchestrator plugin failed to load: {e}')

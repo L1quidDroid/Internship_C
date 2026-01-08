@@ -57,7 +57,11 @@ class ELKTagger:
     
     def _init_elk_client(self) -> Optional[AsyncElasticsearch]:
         """
-        Initialize async Elasticsearch client with retry config.
+        Initialize async Elasticsearch client with auth support.
+        
+        Uses OrchestratorConfig.get_es_client() which supports:
+        - API key auth (preferred)
+        - Basic auth fallback (elastic:password)
         
         Returns:
             AsyncElasticsearch client or None if initialization fails
@@ -67,17 +71,14 @@ class ELKTagger:
             return None
         
         try:
-            client = AsyncElasticsearch(
-                [self.config.ELK_URL],
-                api_key=self.config.ELK_API_KEY if self.config.ELK_API_KEY else None,
-                verify_certs=self.config.ELK_VERIFY_SSL,
-                request_timeout=self.config.ELK_CONNECTION_TIMEOUT,
-                max_retries=self.config.ELK_MAX_RETRIES,
-                retry_on_timeout=True
-            )
+            # Use config helper that handles API key / basic auth
+            client = self.config.get_es_client()
             self.log.info(f'ELK client initialized: {self.config.ELK_URL}')
             return client
         
+        except ImportError as e:
+            self.log.warning(f'elasticsearch library not available: {e}')
+            return None
         except Exception as e:
             self.log.error(f'Failed to initialize ELK client: {e}')
             return None
@@ -132,47 +133,83 @@ class ELKTagger:
     
     def _build_metadata(self, operation) -> Dict[str, Any]:
         """
-        Build metadata JSON from Caldera operation object.
+        Build ECS-compatible metadata from Caldera operation object.
+        
+        Uses purple.* namespace for ATT&CK fields to enable SIEM filtering:
+        - purple.technique: T1078, T1059.001, etc.
+        - purple.tactic: TA0001, TA0007, etc.
+        - purple.operation_id: Caldera operation UUID
+        - purple.detection_status: pending/detected/evaded
         
         Args:
             operation: Caldera operation object
             
         Returns:
-            Metadata dictionary
+            ECS-compatible metadata dictionary
         """
         # Extract techniques and tactics from operation chain
         techniques = []
         tactics = []
+        ability_names = []
         
         if hasattr(operation, 'chain') and operation.chain:
             for link in operation.chain:
                 if hasattr(link, 'ability'):
-                    if hasattr(link.ability, 'technique_id'):
-                        techniques.append(link.ability.technique_id)
-                    if hasattr(link.ability, 'tactic'):
-                        tactics.append(link.ability.tactic)
+                    ability = link.ability
+                    if hasattr(ability, 'technique_id') and ability.technique_id:
+                        techniques.append(ability.technique_id)
+                    if hasattr(ability, 'tactic') and ability.tactic:
+                        tactics.append(ability.tactic)
+                    if hasattr(ability, 'name') and ability.name:
+                        ability_names.append(ability.name)
         
-        # Limit techniques to first 500 (prevents payload bloat)
+        # Deduplicate and limit
         techniques_list = list(set(techniques))
+        tactics_list = list(set(tactics))
+        
         if len(techniques_list) > 500:
             self.log.warning(f'Truncated {len(techniques_list)} techniques to 500')
             techniques_list = techniques_list[:500]
         
-        # Build metadata
+        # Build ECS-compatible document with purple.* namespace
         metadata = {
+            # ECS timestamp
+            '@timestamp': datetime.utcnow().isoformat() + 'Z',
+            
+            # Purple team namespace (for SIEM filtering)
+            'purple': {
+                'technique': techniques_list[0] if techniques_list else None,
+                'techniques': techniques_list,
+                'tactic': tactics_list[0] if tactics_list else None,
+                'tactics': tactics_list,
+                'operation_id': str(operation.id),
+                'operation_name': getattr(operation, 'name', 'Unknown'),
+                'agent_id': getattr(operation, 'group', 'unknown'),
+                'detection_status': 'pending',  # Updated by detection correlation
+                'ability_count': len(ability_names),
+                'technique_count': len(techniques_list),
+                'status': getattr(operation, 'state', 'unknown')
+            },
+            
+            # Tags for Kibana filtering (purple_T1078, purple_TA0007)
+            'tags': (
+                ['purple_team', 'caldera', 'tl_labs', 'simulation'] +
+                [f'purple_{t}' for t in techniques_list[:50]] +
+                [f'purple_{tac}' for tac in tactics_list[:20]]
+            ),
+            
+            # Legacy flat fields (backward compatibility)
             'operation_id': str(operation.id),
             'operation_name': getattr(operation, 'name', 'Unknown'),
             'purple_team_exercise': True,
-            'tags': ['purple_team', 'simulation', 'caldera', 'tl_labs'],
             'client_id': getattr(operation, 'group', 'unknown'),
-            'timestamp': datetime.utcnow().isoformat() + 'Z',
             'techniques': techniques_list,
-            'tactics': list(set(tactics)),
+            'tactics': tactics_list,
+            'abilities': ability_names[:100],
             'severity': 'low',
             'auto_close': True,
             'agent_count': len(getattr(operation, 'agents', [])),
-            'status': getattr(operation, 'state', 'unknown'),
-            'technique_count_total': len(techniques)  # Track actual count before truncation
+            'status': getattr(operation, 'state', 'unknown')
         }
         
         return metadata
