@@ -1077,7 +1077,7 @@
                                     <label for="agent-output-field">Agent output</label>
                                     <div class="modal-form-fields" id="agent-output-field">
                                         <input id="agent-output"
-                                               x-bind:disabled="selectedReportType === 'csv'"
+                                               x-bind:disabled="selectedReportType === 'csv' || selectedReportType === 'pdf'"
                                                type="checkbox"
                                                class="mr-1"
                                                x-model="isAgentOutputSelected">
@@ -1096,7 +1096,20 @@
                                         <input class="mr-1" type="radio" x-model="selectedReportType"
                                                value="csv" id="csv">
                                         <label for="csv">CSV</label>
+                                        <input class="mr-1" type="radio" x-model="selectedReportType"
+                                               value="pdf" id="pdf"
+                                               x-bind:disabled="isOperationRunning">
+                                        <label for="pdf" class="has-text-success has-text-weight-bold"
+                                               x-bind:class="{'has-text-grey-light': isOperationRunning}">📄 PDF Report</label>
                                     </div>
+                                    <p x-show="selectedReportType === 'pdf'" class="help is-success mt-2">
+                                        <span class="icon is-small"><em class="fas fa-info-circle"></em></span>
+                                        Generates executive-ready PDF with MITRE ATT&CK visualizations
+                                    </p>
+                                    <p x-show="isOperationRunning && selectedReportType !== 'pdf'" class="help is-warning mt-2">
+                                        <span class="icon is-small"><em class="fas fa-exclamation-triangle"></em></span>
+                                        PDF reports available after operation completes
+                                    </p>
                                 </div>
                             </div>
                         </section>
@@ -1110,8 +1123,11 @@
                                 <div class="level-right">
                                     <div class="level-item">
                                         <button type="button" class="button is-primary is-small"
+                                                x-bind:class="{'is-loading': isPDFGenerating}"
+                                                x-bind:disabled="isPDFGenerating"
                                                 x-on:click="handleDownload()">
-                                            Download
+                                            <span x-show="!isPDFGenerating">Download</span>
+                                            <span x-show="isPDFGenerating">Generating PDF...</span>
                                         </button>
                                     </div>
                                 </div>
@@ -1236,6 +1252,7 @@
             linkScrollHistory: {operationID: -1, shouldScroll: true, isEnabled: true},
             selectedReportType: 'full-report',
             isAgentOutputSelected: false,
+            isPDFGenerating: false,
             openModal: null,
             openModalForm: {
                 advanced: false
@@ -1825,7 +1842,77 @@
                     this.downloadInfo('full-report');
                 } else if (this.selectedReportType === 'event-logs') {
                     this.downloadInfo('event-logs');
-                } else if (this.selectedReportType === 'csv') this.downloadCSV();
+                } else if (this.selectedReportType === 'csv') {
+                    this.downloadCSV();
+                } else if (this.selectedReportType === 'pdf') {
+                    this.downloadPDF();
+                }
+            },
+
+            async downloadPDF() {
+                // Validate operation is finished
+                if (this.isOperationRunning) {
+                    toast('Cannot generate PDF for running operation. Wait for completion.', false);
+                    return;
+                }
+
+                this.isPDFGenerating = true;
+                const operationId = this.selectedOperationID;
+                const operationName = this.selectedOperation.name;
+
+                try {
+                    // Step 1: Request PDF generation from reporting plugin
+                    const generateResponse = await fetch('/plugin/reporting/generate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ operation_id: operationId })
+                    });
+
+                    // Handle plugin not installed (404)
+                    if (generateResponse.status === 404) {
+                        toast('Reporting plugin not installed. Install with: pip install reportlab pillow', false);
+                        this.isPDFGenerating = false;
+                        return;
+                    }
+
+                    const result = await generateResponse.json();
+
+                    if (!result.success) {
+                        toast(`PDF generation failed: ${result.error}`, false);
+                        this.isPDFGenerating = false;
+                        return;
+                    }
+
+                    // Step 2: Download the generated PDF
+                    const downloadResponse = await fetch(`/plugin/reporting/download/${operationId}`);
+                    
+                    if (!downloadResponse.ok) {
+                        toast('Failed to download PDF report', false);
+                        this.isPDFGenerating = false;
+                        return;
+                    }
+
+                    const blob = await downloadResponse.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${operationName}_report_${new Date().toISOString().split('T')[0]}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+
+                    toast(`PDF report downloaded: ${operationName}`, true);
+                    this.openModal = null;
+
+                } catch (error) {
+                    console.error('PDF download error:', error);
+                    toast('Error generating PDF report. Check if reporting plugin is installed.', false);
+                } finally {
+                    this.isPDFGenerating = false;
+                }
             },
 
             //
