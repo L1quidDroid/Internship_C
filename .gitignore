@@ -52,3 +52,8 @@ Thumbs.db
 /tmp/
 .github/audit
 .github/reporting fix
+.github/orchestrator_fix
+test1_report_(1).json
+.gitignore
+plugins/orchestrator/test_event_handler.py
+plugins/orchestrator/deploy_and_verify.sh

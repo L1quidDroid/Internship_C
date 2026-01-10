@@ -4,6 +4,7 @@ Orchestrator service coordinator.
 Subscribes to operation events and delegates to specialized services (ELK tagger, health checker).
 """
 
+import json
 import logging
 from typing import Dict, Any
 
@@ -41,7 +42,7 @@ class OrchestratorService:
         
         self.log.info('OrchestratorService initialized')
     
-    async def on_operation_state_changed(self, op=None, from_state=None, to_state=None, **kwargs):
+    async def on_operation_state_changed(self, socket, path, services):
         """
         Event handler: Tag operation when state changes.
         
@@ -49,26 +50,35 @@ class OrchestratorService:
         Subscribed to exchange='operation', queue='state_changed'.
         
         Args:
-            op: Operation ID string (Caldera passes ID, not object)
-            from_state: Previous state
-            to_state: New state
-            **kwargs: Event metadata
+            socket: Websocket connection object
+            path: Websocket path (e.g., '/operation/state_changed')
+            services: Caldera service registry
         """
-        if not op:
-            self.log.warning('[orchestrator] State change event missing operation ID')
-            return
-        
         try:
-            self.log.info(f'[orchestrator] State change: {op[:16]}... ({from_state} → {to_state})')
+            # Read and parse JSON message from websocket
+            message_data = await socket.recv()
+            event_data = json.loads(message_data)
+            
+            # Extract event parameters
+            op_id = event_data.get('op')
+            from_state = event_data.get('from_state')
+            to_state = event_data.get('to_state')
+            
+            if not op_id:
+                self.log.warning('[orchestrator] State change event missing operation ID')
+                return
+            
+            self.log.info(f'[orchestrator] State change: {op_id[:16]}... ({from_state} → {to_state})')
             
             # Fetch operation object from data_svc using ID
-            if not self.data_svc:
+            data_svc = services.get('data_svc')
+            if not data_svc:
                 self.log.error('[orchestrator] data_svc not available')
                 return
             
-            operations = await self.data_svc.locate('operations', match=dict(id=op))
+            operations = await data_svc.locate('operations', match=dict(id=op_id))
             if not operations:
-                self.log.warning(f'[orchestrator] Operation not found: {op[:16]}...')
+                self.log.warning(f'[orchestrator] Operation not found: {op_id[:16]}...')
                 return
             
             operation = operations[0]
@@ -78,7 +88,7 @@ class OrchestratorService:
             # Non-fatal error (don't break operation)
             self.log.error(f'[orchestrator] Operation tagging failed (non-fatal): {e}', exc_info=True)
     
-    async def on_operation_completed(self, op=None, **kwargs):
+    async def on_operation_completed(self, socket, path, services):
         """
         Event handler: Handle operation completion.
         
@@ -86,32 +96,41 @@ class OrchestratorService:
         Subscribed to exchange='operation', queue='completed'.
         
         Args:
-            op: Operation ID string (Caldera passes ID, not object)
-            **kwargs: Event metadata
+            socket: Websocket connection object
+            path: Websocket path (e.g., '/operation/completed')
+            services: Caldera service registry
         """
-        if not op:
-            self.log.warning('[orchestrator] Completed event missing operation ID')
-            return
-        
         try:
+            # Read and parse JSON message from websocket
+            message_data = await socket.recv()
+            event_data = json.loads(message_data)
+            
+            # Extract operation ID from event data
+            op_id = event_data.get('op')
+            
+            if not op_id:
+                self.log.warning('[orchestrator] Completed event missing operation ID')
+                return
+            
             # Fetch operation object from data_svc using ID
-            if not self.data_svc:
+            data_svc = services.get('data_svc')
+            if not data_svc:
                 self.log.error('[orchestrator] data_svc not available')
                 return
             
-            operations = await self.data_svc.locate('operations', match=dict(id=op))
+            operations = await data_svc.locate('operations', match=dict(id=op_id))
             if not operations:
-                self.log.warning(f'[orchestrator] Operation not found: {op[:16]}...')
+                self.log.warning(f'[orchestrator] Operation not found: {op_id[:16]}...')
                 return
             
             operation = operations[0]
-            self.log.info(f'[orchestrator] Operation finished: {op[:16]}... (state: {operation.state})')
+            self.log.info(f'[orchestrator] Operation finished: {op_id[:16]}... (state: {operation.state})')
             
             # Update operation status in ELK (re-tag with final state)
             await self.elk_tagger.tag(operation)
             
             # Trigger PDF report generation
-            report_svc = self.services.get('report_svc')
+            report_svc = services.get('report_svc')
             if report_svc:
                 self.log.info(f'[orchestrator] Triggering report generation for {operation.name}')
                 try:
