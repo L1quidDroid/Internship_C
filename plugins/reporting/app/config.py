@@ -28,7 +28,7 @@ class ReportingConfig:
     def _load_config(self) -> None:
         """Load configuration from file and environment variables."""
         # Load from Caldera's BaseWorld config system
-        reporting_config = BaseWorld.get_config(prop='reporting', name='local') or {}
+        reporting_config = BaseWorld.get_config(prop='reporting', name='main') or {}
         
         # Report output directory
         self.output_dir = Path(

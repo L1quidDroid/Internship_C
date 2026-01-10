@@ -51,7 +51,7 @@ async def enable(services):
     Returns:
         None (modifies services dict in-place)
     """
-    logger = services.get('app_svc').get_logger() if services.get('app_svc') else logging.getLogger(__name__)
+    logger = logging.getLogger('reporting')
     
     # Check if plugin dependencies available
     if not _plugin_enabled:
@@ -126,7 +126,7 @@ async def disable(services):
         - Waits for pending reports (max 30s)
         - Prevents thread leaks
     """
-    logger = services.get('app_svc').get_logger() if services.get('app_svc') else logging.getLogger(__name__)
+    logger = logging.getLogger('reporting')
     
     if not _plugin_enabled:
         logger.debug('Reporting plugin was not enabled, skipping disable')
