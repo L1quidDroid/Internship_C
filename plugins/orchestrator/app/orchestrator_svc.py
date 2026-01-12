@@ -129,16 +129,9 @@ class OrchestratorService:
             # Update operation status in ELK (re-tag with final state)
             await self.elk_tagger.tag(operation)
             
-            # Trigger PDF report generation
-            report_svc = services.get('report_svc')
-            if report_svc:
-                self.log.info(f'[orchestrator] Triggering report generation for {operation.name}')
-                try:
-                    await report_svc.generate_report(operation)
-                except Exception as report_error:
-                    self.log.error(f'[orchestrator] Report generation failed: {report_error}', exc_info=True)
-            else:
-                self.log.warning('[orchestrator] report_svc not available, skipping PDF generation')
+            # Note: PDF report generation is handled automatically by the reporting plugin
+            # via event subscription (reporting plugin listens to operation.completed events)
+            self.log.debug(f'[orchestrator] Operation completion handled. Report generation delegated to reporting plugin event handler.')
             
         except Exception as e:
             self.log.error(f'[orchestrator] Operation finish handling failed: {e}', exc_info=True)

