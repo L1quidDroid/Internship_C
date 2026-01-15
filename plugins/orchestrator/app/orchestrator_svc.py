@@ -136,6 +136,61 @@ class OrchestratorService:
         except Exception as e:
             self.log.error(f'[orchestrator] Operation finish handling failed: {e}', exc_info=True)
     
+    async def on_link_status_changed(self, socket, path, services):
+        """Event handler: Tag individual attack execution."""
+        try:
+            message_data = await socket.recv()
+            event_data = json.loads(message_data)
+            
+            link_id = event_data.get('link')
+            from_status = event_data.get('from_status')
+            to_status = event_data.get('to_status')
+            
+            if not link_id:
+                self.log.warning('[orchestrator] Link status change event missing link ID')
+                return
+            
+            if to_status not in [0, 1, 124]:
+                self.log.debug(f'[orchestrator] Skipping link tag (status {to_status} not final): {link_id[:8]}...')
+                return
+            
+            self.log.info(f'[orchestrator] Link finished: {link_id[:8]}... (status: {from_status} → {to_status})')
+            
+            data_svc = services.get('data_svc')
+            if not data_svc:
+                self.log.error('[orchestrator] data_svc not available')
+                return
+            
+            operations = await data_svc.locate('operations')
+            
+            link = None
+            operation = None
+            for op in operations:
+                if hasattr(op, 'chain') and op.chain:
+                    for lnk in op.chain:
+                        if str(lnk.id) == str(link_id):
+                            link = lnk
+                            operation = op
+                            break
+                if link:
+                    break
+            
+            if not link:
+                self.log.warning(f'[orchestrator] Link not found in any operation: {link_id[:8]}...')
+                return
+            
+            if not operation:
+                self.log.warning(f'[orchestrator] Operation not found for link: {link_id[:8]}...')
+                return
+            
+            self.log.debug(f'[orchestrator] Tagging link: {link_id[:8]}... '
+                          f'(op: {operation.id[:8]}..., ability: {link.ability.name if link.ability else "N/A"})')
+            
+            await self.elk_tagger.tag_link(link, operation)
+            
+        except Exception as e:
+            self.log.error(f'[orchestrator] Link tagging failed (non-fatal): {e}', exc_info=True)
+    
     async def shutdown(self):
         """Shutdown orchestrator service and cleanup resources."""
         self.log.info('Shutting down orchestrator service...')

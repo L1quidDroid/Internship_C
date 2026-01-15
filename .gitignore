@@ -3,6 +3,7 @@
 
 # Environment & Secrets (NEVER commit these!)
 .env
+.env.*
 .env.local
 conf/local.yml
 

@@ -349,6 +349,135 @@ class ELKTagger:
                 self.log.error(f'Fallback logging failed: {e}')
                 return None
     
+    def _map_link_status(self, status_code: int) -> str:
+        """Map Caldera link status code to human-readable string."""
+        status_map = {
+            -5: 'high_viz',
+            -4: 'untrusted',
+            -3: 'execute',
+            -2: 'discard',
+            -1: 'pause',
+            0: 'success',
+            1: 'error',
+            124: 'timeout'
+        }
+        return status_map.get(status_code, 'unknown')
+    
+    async def tag_link(self, link, operation) -> Optional[Dict[str, Any]]:
+        """Tag individual attack execution in Elasticsearch."""
+        async with self._tag_semaphore:
+            if not link or not hasattr(link, 'id'):
+                self.log.warning('tag_link() called with invalid link')
+                return None
+            
+            if not link.ability:
+                self.log.warning(f'Link {link.id[:8]}... missing ability')
+                return None
+            
+            try:
+                execution_time = None
+                if hasattr(link, 'collect') and link.collect:
+                    execution_time = link.collect.isoformat() if hasattr(link.collect, 'isoformat') else str(link.collect)
+                
+                finish_time = None
+                if hasattr(link, 'finish') and link.finish:
+                    finish_time = link.finish if isinstance(link.finish, str) else str(link.finish)
+                
+                metadata = {
+                    '@timestamp': datetime.utcnow().isoformat() + 'Z',
+                    'purple': {
+                        'link_id': str(link.id),
+                        'operation_id': str(operation.id),
+                        'operation_name': getattr(operation, 'name', 'Unknown'),
+                        'technique': getattr(link.ability, 'technique_id', None),
+                        'technique_name': getattr(link.ability, 'technique_name', None),
+                        'tactic': getattr(link.ability, 'tactic', None),
+                        'ability_id': getattr(link.ability, 'ability_id', None),
+                        'ability_name': getattr(link.ability, 'name', None),
+                        'ability_description': getattr(link.ability, 'description', None)[:500] if hasattr(link.ability, 'description') else None,
+                        'agent_paw': link.paw if hasattr(link, 'paw') else None,
+                        'agent_host': link.host if hasattr(link, 'host') else None,
+                        'executor': link.executor.name if hasattr(link, 'executor') and link.executor and hasattr(link.executor, 'name') else None,
+                        'platform': link.executor.platform if hasattr(link, 'executor') and link.executor and hasattr(link.executor, 'platform') else None,
+                        'status': self._map_link_status(link.status) if hasattr(link, 'status') else 'unknown',
+                        'status_code': link.status if hasattr(link, 'status') else -3,
+                        'success': link.status == 0 if hasattr(link, 'status') else None,
+                        'detection_status': 'pending',
+                        'execution_time': execution_time,
+                        'finish_time': finish_time,
+                        'command_hash': link.command_hash if hasattr(link, 'command_hash') else None
+                    },
+                    'tags': [
+                        'purple_team', 'caldera', 'tl_labs', 'link_execution',
+                        f'purple_{link.ability.technique_id}' if link.ability.technique_id else 'purple_unknown',
+                        f'purple_link_{link.id[:8]}'
+                    ],
+                    'event': {
+                        'kind': 'event',
+                        'category': ['intrusion_detection'],
+                        'type': ['info'],
+                        'action': 'purple-team-simulation',
+                        'outcome': 'success' if (hasattr(link, 'status') and link.status == 0) else 'failure'
+                    },
+                    'link_id': str(link.id),
+                    'operation_id': str(operation.id),
+                    'purple_team_exercise': True,
+                    'technique': getattr(link.ability, 'technique_id', None),
+                    'tactic': getattr(link.ability, 'tactic', None),
+                    'ability_name': getattr(link.ability, 'name', None),
+                    'agent_paw': link.paw if hasattr(link, 'paw') else None
+                }
+                
+                metadata = self._sanitize_metadata(metadata)
+                
+            except Exception as e:
+                self.log.error(f'Failed to build link metadata: {e}', exc_info=True)
+                return None
+            
+            if self.elk_client and not self._circuit_open:
+                try:
+                    async with asyncio.timeout(35):
+                        response = await self.elk_client.index(
+                            index=self.config.ELK_INDEX,
+                            document=metadata,
+                        )
+                    
+                    self._failure_count = 0
+                    self._circuit_open = False
+                    
+                    self.log.info(
+                        f'ELK tagged link: {link.id[:8]}... '
+                        f'({link.ability.technique_id if link.ability.technique_id else "NO_TID"} - '
+                        f'{link.ability.name if link.ability.name else "NO_NAME"}) '
+                        f'status={self._map_link_status(link.status)}'
+                    )
+                    return response
+                    
+                except asyncio.TimeoutError:
+                    self.log.error(f'Link ELK POST timeout: {link.id[:8]}...')
+                except (ConnectionError, TransportError) as e:
+                    self._failure_count += 1
+                    if self._failure_count >= self._max_failures:
+                        self._circuit_open = True
+                        self.log.error(f'Circuit breaker opened after {self._max_failures} failures')
+                    self.log.error(f'Link ELK POST failed: {str(e)[:100]}')
+                except Exception as e:
+                    self.log.error(f'Link ELK POST error: {str(e)[:100]}')
+            
+            try:
+                timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
+                filename = f'fallback_link_{timestamp}_{link.id[:8]}.json'
+                filepath = self.fallback_dir / filename
+                
+                with open(filepath, 'w') as f:
+                    f.write(json.dumps(metadata, indent=2))
+                
+                self.log.warning(f'Link fallback log written: {filepath.name}')
+                return None
+            except Exception as e:
+                self.log.error(f'Link fallback logging failed: {e}')
+                return None
+    
     async def close(self):
         """Close ELK client connection."""
         if self.elk_client:

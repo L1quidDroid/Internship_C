@@ -75,9 +75,16 @@ async def enable(services):
                 queue='completed'
             )
             
+            await event_svc.observe_event(
+                callback=orchestrator_svc.on_link_status_changed,
+                exchange='link',
+                queue='status_changed'
+            )
+            
             log.info('✅ Orchestrator event handlers registered:')
             log.info('   operation/state_changed')
             log.info('   operation/completed')
+            log.info('   link/status_changed (granular attack tagging)')
         else:
             log.warning('event_svc not available, event subscriptions skipped')
         

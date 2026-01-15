@@ -1113,6 +1113,4 @@ python server.py --insecure --fresh
 
 Document Version: 5.3.1
 Last Updated: January 2026
-Contributors: Triskele Labs Engineering Team
-Support: Use GitHub Issues for bug reports
-Licence: Caldera is Apache 2.0 licenced (MITRE Corporation)
+
