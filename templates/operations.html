@@ -1100,15 +1100,15 @@
                                                value="pdf" id="pdf"
                                                x-bind:disabled="isOperationRunning">
                                         <label for="pdf" class="has-text-success has-text-weight-bold"
-                                               x-bind:class="{'has-text-grey-light': isOperationRunning}">📄 PDF Report</label>
+                                               x-bind:class="{'has-text-grey-light': isOperationRunning}">PDF Report</label>
                                     </div>
                                     <p x-show="selectedReportType === 'pdf'" class="help is-success mt-2">
                                         <span class="icon is-small"><em class="fas fa-info-circle"></em></span>
-                                        Generates executive-ready PDF with MITRE ATT&CK visualizations
+                                        Generates PDF via Debrief plugin with ELK detection coverage
                                     </p>
                                     <p x-show="isOperationRunning && selectedReportType !== 'pdf'" class="help is-warning mt-2">
                                         <span class="icon is-small"><em class="fas fa-exclamation-triangle"></em></span>
-                                        PDF reports available after operation completes
+                                        PDF reports (via Debrief tab) available after operation completes
                                     </p>
                                 </div>
                             </div>
@@ -1856,63 +1856,27 @@
                     return;
                 }
 
-                this.isPDFGenerating = true;
-                const operationId = this.selectedOperationID;
+                // Redirect to debrief plugin for PDF generation
                 const operationName = this.selectedOperation.name;
-
-                try {
-                    // Step 1: Request PDF generation from reporting plugin
-                    const generateResponse = await fetch('/plugin/reporting/generate', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ operation_id: operationId })
-                    });
-
-                    // Handle plugin not installed (404)
-                    if (generateResponse.status === 404) {
-                        toast('Reporting plugin not installed. Install with: pip install reportlab pillow', false);
-                        this.isPDFGenerating = false;
-                        return;
+                
+                toast(`PDF reports are now generated via the Debrief plugin. Redirecting to Debrief tab...`, true);
+                
+                // Close the download modal
+                this.openModal = null;
+                
+                // Wait a moment for the toast to be visible
+                setTimeout(() => {
+                    // Check if debrief plugin tab exists
+                    const debriefTab = document.querySelector('a[href="#debrief"]');
+                    if (debriefTab) {
+                        debriefTab.click();
+                        toast(`Select operation "${operationName}" and configure report sections in the Debrief interface`, true);
+                    } else {
+                        // Fallback: try direct navigation
+                        window.location.hash = '#debrief';
+                        toast('Debrief plugin not found. Enable debrief and debrief-elk-detections plugins in conf/local.yml', false);
                     }
-
-                    const result = await generateResponse.json();
-
-                    if (!result.success) {
-                        toast(`PDF generation failed: ${result.error}`, false);
-                        this.isPDFGenerating = false;
-                        return;
-                    }
-
-                    // Step 2: Download the generated PDF
-                    const downloadResponse = await fetch(`/plugin/reporting/download/${operationId}`);
-                    
-                    if (!downloadResponse.ok) {
-                        toast('Failed to download PDF report', false);
-                        this.isPDFGenerating = false;
-                        return;
-                    }
-
-                    const blob = await downloadResponse.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `${operationName}_report_${new Date().toISOString().split('T')[0]}.pdf`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    window.URL.revokeObjectURL(url);
-
-                    toast(`PDF report downloaded: ${operationName}`, true);
-                    this.openModal = null;
-
-                } catch (error) {
-                    console.error('PDF download error:', error);
-                    toast('Error generating PDF report. Check if reporting plugin is installed.', false);
-                } finally {
-                    this.isPDFGenerating = false;
-                }
+                }, 1000);
             },
 
             //

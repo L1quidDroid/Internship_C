@@ -35,7 +35,7 @@ elk:
   connection_timeout: 30
   max_retries: 3
 
-# Enable orchestrator plugin
+# Enable plugins
 plugins:
   - sandcat
   - stockpile
@@ -43,4 +43,6 @@ plugins:
   - magma
   - orchestrator  # ✨ TL Labs Purple Team Automation
   - reporting
+  - debrief  # MITRE debrief plugin
+  - debrief-elk-detections  # ELK detection coverage for debrief
   - branding

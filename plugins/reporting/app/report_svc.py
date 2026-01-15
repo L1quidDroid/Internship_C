@@ -494,14 +494,14 @@ class ReportService:
         """
         REST API endpoint: GET /plugin/reporting/download/{op_id}
         
-        Returns PDF file as binary download.
+        Returns PDF file as binary download (post-operation only).
         
         Args:
             request: aiohttp request with op_id in path
         
         Response:
             Success: PDF bytes with Content-Type: application/pdf
-            Error: JSON with error message (HTTP 404 if not found)
+            Error: JSON with error message (HTTP 404 if not found, 403 if operation not finished)
         """
         try:
             op_id = request.match_info.get('op_id')
@@ -511,6 +511,32 @@ class ReportService:
                     {'success': False, 'error': 'op_id required in path'},
                     status=400
                 )
+            
+            # Validate operation exists and is finished (server-side enforcement)
+            if self.data_svc:
+                operations = await self.data_svc.locate('operations', match=dict(id=op_id))
+                
+                if not operations:
+                    self.log.warning(f"Operation {op_id} not found for download")
+                    return web.json_response(
+                        {'success': False, 'error': f'Operation {op_id} not found'},
+                        status=404
+                    )
+                
+                operation = operations[0]
+                
+                # Enforce post-operation only downloads
+                if operation.state != 'finished':
+                    self.log.warning(
+                        f"Download blocked: Operation {op_id} not finished (state: {operation.state})"
+                    )
+                    return web.json_response(
+                        {
+                            'success': False, 
+                            'error': f'PDF reports only available for completed operations (current state: {operation.state})'
+                        },
+                        status=403
+                    )
             
             # Find report file matching operation ID
             report_dir = self.config.output_dir
@@ -530,12 +556,10 @@ class ReportService:
             
             # Also check by looking up operation name
             if not matching_files and self.data_svc:
-                operations = await self.data_svc.locate('operations', match=dict(id=op_id))
-                if operations:
-                    op_name = getattr(operations[0], 'name', '').replace(' ', '_').lower()
-                    for pdf_file in report_dir.glob('*.pdf'):
-                        if op_name and op_name in pdf_file.name.lower():
-                            matching_files.append(pdf_file)
+                op_name = getattr(operation, 'name', '').replace(' ', '_').lower()
+                for pdf_file in report_dir.glob('*.pdf'):
+                    if op_name and op_name in pdf_file.name.lower():
+                        matching_files.append(pdf_file)
             
             if not matching_files:
                 self.log.warning(f"No report found for operation {op_id}")

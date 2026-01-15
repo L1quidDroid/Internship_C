@@ -1,0 +1,76 @@
+# Debrief ELK Detection Coverage Plugin Configuration
+
+debrief_elk_detections:
+  # ============================================
+  # ELK / Elasticsearch Connection Settings
+  # ============================================
+  # Reuses orchestrator plugin's ELK connection by default
+  # Override here if you need separate read-only credentials
+  
+  # ELK connection (loaded from environment variables for security)
+  # elk_url: "${ELK_URL}"           # Default: http://20.28.49.97:9200
+  # elk_user: "${ELK_USER}"         # Default: elastic
+  # elk_pass: "${ELK_PASSWORD}"     # Default: from .env.caldera
+  # elk_api_key: "${ELK_API_KEY}"   # Optional: Use API key instead of user/pass
+  
+  # If not set, will fallback to orchestrator plugin settings
+  elk_index: "purple-team-logs-*"   # Index pattern for detection queries
+  elk_verify_ssl: false              # Set true for production with proper certs
+  elk_ca_cert: ""                    # Path to CA cert file (e.g., /etc/ssl/certs/elk-ca.pem)
+  elk_connection_timeout: 30         # Query timeout in seconds
+  
+  # Production SSL/TLS Configuration
+  # Uncomment and configure for production deployments:
+  # elk_url: "https://your-elk.domain.com:9200"
+  # elk_verify_ssl: true
+  # elk_ca_cert: "/etc/caldera/certs/elk-ca.pem"
+  # elk_api_key: "${ELK_API_KEY}"  # Use read-only API key
+  
+  # ============================================
+  # Detection Correlation Settings
+  # ============================================
+  
+  # Minimum alert count to mark technique as "detected"
+  min_alert_count: 1
+  
+  # Time window (hours) to mark technique as "pending" if no alerts
+  pending_timeout_hours: 24
+  
+  # ELK field mappings (adjust if your orchestrator uses different schema)
+  field_mappings:
+    operation_id: "purple.operation_id"
+    technique: "purple.technique"
+    detection_status: "purple.detection_status"
+    rule_name: "rule.name"
+    tactic: "purple.tactic"
+  
+  # ============================================
+  # Report Branding & Display
+  # ============================================
+  
+  company_name: "Triskele Labs"
+  
+  # Logo for custom PDF headers (optional)
+  # logo_path: "plugins/debrief-elk-detections/static/triskele_logo.png"
+  
+  # Section display options
+  section_title: "ELK Detection Coverage Analysis"
+  show_summary_stats: true
+  show_per_technique_breakdown: true
+  
+  # Color coding for detection status
+  colors:
+    detected: "#28a745"      # Green
+    evaded: "#dc3545"        # Red
+    pending: "#ffc107"       # Orange/Yellow
+  
+  # ============================================
+  # Performance & Caching
+  # ============================================
+  
+  # Maximum techniques to query in single ELK request
+  max_techniques_per_query: 100
+  
+  # Enable caching of detection results (reduces ELK load)
+  enable_caching: false
+  cache_ttl_seconds: 300
