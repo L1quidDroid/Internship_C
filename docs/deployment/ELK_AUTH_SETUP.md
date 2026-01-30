@@ -18,7 +18,7 @@ export ELK_PASS='ms4FiYr-C1bx0F1=GFrM'
 
 ```bash
 # Option A: Use startup script (recommended)
-./start_caldera.sh
+../scripts/start_caldera.sh
 
 # Option B: Manual start (ensure env vars are set first)
 source .env.elk && python server.py --insecure --log INFO
@@ -71,7 +71,7 @@ curl -u "elastic:ms4FiYr-C1bx0F1=GFrM" "http://20.28.49.97:9200/_cluster/health?
 
 ```bash
 # Use startup script
-./start_caldera.sh
+../scripts/start_caldera.sh
 
 # OR manually
 source .env.elk && python server.py --insecure --log INFO
@@ -106,7 +106,7 @@ ls -lh plugins/orchestrator/data/fallback_logs/
 source .env.elk
 
 # Restart Caldera
-./start_caldera.sh
+../scripts/start_caldera.sh
 ```
 
 ### Authentication Errors
@@ -132,7 +132,7 @@ curl -u "elastic:YOUR_PASSWORD" "http://20.28.49.97:9200/_cluster/health"
 ```bash
 # 1. Fix network/auth issue
 # 2. Restart Caldera (circuit breaker resets on startup)
-./start_caldera.sh
+../scripts/start_caldera.sh
 ```
 
 ## Verification Checklist

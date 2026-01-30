@@ -190,8 +190,8 @@ python3 plugins/orchestrator/test_event_handler.py
 
 ---
 
-### Issue 2: "ELK client not initialized"
-**Symptom:** `/status` shows `elk.status: "client_not_initialized"`
+### Issue 2: "ELK client not initialised"
+**Symptom:** `/status` shows `elk.status: "client_not_initialised"`
 
 **Fix:**
 1. Set environment variables:
@@ -322,7 +322,7 @@ tail -100 caldera.log | grep -A 5 "Traceback\|Exception\|Error"
 [Operation.close()]
       ↓ (fires event)
 [event_svc.fire_event(exchange='operation', queue='completed', op=<uuid>)]
-      ↓ (serializes to JSON)
+      ↓ (serialises to JSON)
 [Websocket: {"op": "<uuid>", "metadata": {...}}]
       ↓ (dispatches to handlers)
 [orchestrator_svc.on_operation_completed(socket, path, services)]

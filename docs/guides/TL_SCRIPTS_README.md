@@ -4,13 +4,13 @@
 
 ```bash
 # Start everything (ELK → Caldera)
-./tl-startup.sh
+../scripts/tl-startup.sh
 
 # Check system status
-./tl-status.sh
+../scripts/tl-status.sh
 
 # Graceful shutdown (Caldera → ELK)
-./tl-shutdown.sh
+../scripts/tl-shutdown.sh
 ```
 
 ## Scripts Overview
@@ -28,7 +28,7 @@ Starts the complete purple team environment in the correct order:
 
 **Usage:**
 ```bash
-./tl-startup.sh
+../scripts/tl-startup.sh
 # Starts all services and runs Caldera in foreground
 # Press Ctrl+C to stop Caldera (ELK keeps running)
 ```
@@ -52,7 +52,7 @@ Stops all services in reverse order to ensure data integrity:
 
 **Usage:**
 ```bash
-./tl-shutdown.sh
+../scripts/tl-shutdown.sh
 # Stops all services cleanly
 ```
 
@@ -76,7 +76,7 @@ Displays comprehensive environment status:
 
 **Usage:**
 ```bash
-./tl-status.sh
+../scripts/tl-status.sh
 # Shows current state of all components
 ```
 
@@ -163,7 +163,7 @@ python3 server.py --build
 
 ### 6. Test Startup
 ```bash
-./tl-startup.sh
+../scripts/tl-startup.sh
 # Verify all services start successfully
 ```
 
@@ -173,7 +173,7 @@ python3 server.py --build
 
 ### Morning Startup
 ```bash
-./tl-startup.sh
+../scripts/tl-startup.sh
 # Wait for "Starting Caldera on http://localhost:8888"
 # Open browser to localhost:8888
 ```
@@ -181,7 +181,7 @@ python3 server.py --build
 ### Check Health
 ```bash
 # In another terminal
-./tl-status.sh
+../scripts/tl-status.sh
 ```
 
 ### Run Operations
@@ -206,7 +206,7 @@ curl "http://20.28.49.97:9200/purple-team-logs/_search?q=purple.link_id:*&size=1
 ```bash
 # Stop Caldera with Ctrl+C (if running in foreground)
 # OR run full shutdown:
-./tl-shutdown.sh
+../scripts/tl-shutdown.sh
 ```
 
 ---
@@ -222,7 +222,7 @@ sudo lsof -i :8888
 pkill -f "python.*server.py"
 
 # Restart
-./tl-startup.sh
+../scripts/tl-startup.sh
 ```
 
 ### Elasticsearch Won't Start
@@ -260,9 +260,9 @@ source .env.elk
 free -h
 
 # If <2GB available, restart services:
-./tl-shutdown.sh
+../scripts/tl-shutdown.sh
 sleep 10
-./tl-startup.sh
+../scripts/tl-startup.sh
 ```
 
 ---
@@ -273,9 +273,9 @@ Add to `~/.bashrc` for quick access:
 
 ```bash
 # Triskele Labs Purple Team aliases
-alias tl-start='cd /home/tonyto/caldera && ./tl-startup.sh'
-alias tl-stop='cd /home/tonyto/caldera && ./tl-shutdown.sh'
-alias tl-check='cd /home/tonyto/caldera && ./tl-status.sh'
+alias tl-start='cd /home/tonyto/caldera && ../scripts/tl-startup.sh'
+alias tl-stop='cd /home/tonyto/caldera && ../scripts/tl-shutdown.sh'
+alias tl-check='cd /home/tonyto/caldera && ../scripts/tl-status.sh'
 alias tl-logs='tail -f /tmp/tl-startup.log /tmp/tl-shutdown.log'
 
 # Quick Caldera access
@@ -329,7 +329,7 @@ export ELK_PASS='ms4FiYr-C1bx0F1=GFrM'
 EOF
 
 # Start environment
-./tl-startup.sh
+../scripts/tl-startup.sh
 ```
 
 ---
@@ -337,8 +337,8 @@ EOF
 ## Best Practices
 
 1. **Always use startup script** - Ensures consistent state
-2. **Check status after startup** - Run `./tl-status.sh` to verify
-3. **Graceful shutdown** - Use `./tl-shutdown.sh` before VM reboot
+2. **Check status after startup** - Run `../scripts/tl-status.sh` to verify
+3. **Graceful shutdown** - Use `../scripts/tl-shutdown.sh` before VM reboot
 4. **Monitor resources** - Keep 4GB+ RAM free for smooth operation
 5. **Update regularly** - `git pull` is automated in startup script
 6. **Log review** - Check `/tmp/tl-startup.log` for issues

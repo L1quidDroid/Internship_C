@@ -112,5 +112,5 @@ systemctl is-active --quiet logstash || ALL_SERVICES_UP=false
 if [ "$ALL_SERVICES_UP" = true ]; then
     echo "OK All systems operational"
 else
-    echo "⚠️  Some systems offline. Run: ./tl-startup.sh"
+    echo "⚠️  Some systems offline. Run: ./scripts/tl-startup.sh"
 fi

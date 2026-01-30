@@ -78,4 +78,4 @@ systemctl is-active --quiet elastic-agent && echo "  ⚠️  elastic-agent still
 
 echo ""
 echo "$(date '+%Y-%m-%d %H:%M:%S') - Shutdown complete" >> "$LOG_FILE"
-echo "[SHUTDOWN] Complete. Run ./tl-startup.sh to restart."
+echo "[SHUTDOWN] Complete. Run ./scripts/tl-startup.sh to restart."

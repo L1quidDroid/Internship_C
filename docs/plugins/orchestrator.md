@@ -3,7 +3,7 @@
 **Version**: 1.0.0  
 **Status**: ✅ Ready for Testing  
 **Author**: Tony (Detection & Automation Engineer Intern)  
-**Organisation**: Triskele Labs
+**Organization**: Triskele Labs
 
 ---
 
@@ -17,7 +17,7 @@ The Orchestrator Plugin automatically tags Caldera operations in Elasticsearch, 
 ✅ **Event-Based Architecture** - Uses Caldera's `event_svc` for reliable operation tracking  
 ✅ **Fallback Logging** - Never lose telemetry, even when ELK is down  
 ✅ **Circuit Breaker Pattern** - Auto-disables after failures to prevent cascade  
-✅ **Input Validation** - Sanitises all metadata to prevent injection attacks  
+✅ **Input Validation** - Sanitizes all metadata to prevent injection attacks  
 ✅ **Concurrent Limiting** - Prevents resource exhaustion (5 max simultaneous tags)  
 ✅ **Comprehensive Testing** - 15 unit tests + integration test suite
 
@@ -222,8 +222,8 @@ ELKTagger
 
 ✅ **Operation ID Validation** - Alphanumeric + hyphens only (8-64 chars)  
 ✅ **Technique ID Validation** - MITRE ATT&CK format (T1234 or T1234.001)  
-✅ **Metadata Sanitisation** - Removes special characters, prevents XSS  
-✅ **Path Traversal Prevention** - Sanitises client_id and file paths
+✅ **Metadata Sanitization** - Removes special characters, prevents XSS  
+✅ **Path Traversal Prevention** - Sanitizes client_id and file paths
 
 ### Resource Protection
 
@@ -238,7 +238,7 @@ ELKTagger
 ✅ **API Key Authentication** - Supports ELK API keys  
 ✅ **SSL/TLS Verification** - Configurable certificate validation  
 ✅ **Environment Variables** - Secrets never hardcoded  
-✅ **Error Sanitisation** - No sensitive data in logs
+✅ **Error Sanitization** - No sensitive data in logs
 
 ---
 
@@ -307,7 +307,7 @@ grep "Circuit breaker" logs/caldera.log
 | Concurrent Operations | 100+ | Tested 10 |
 | Success Rate | >99.5% | 100% |
 
-### Optimisations
+### Optimizations
 
 - **Async I/O** - All ELK operations use `asyncio`
 - **Connection Pooling** - Reuses connections to ELK
@@ -337,7 +337,7 @@ grep "Circuit breaker" logs/caldera.log
 - [ ] Real-time alert dashboards
 - [ ] Multi-tenant data isolation
 - [ ] Slack/email notifications
-- [ ] Attack chain visualisation
+- [ ] Attack chain visualization
 - [ ] Threat intelligence enrichment
 
 ---
