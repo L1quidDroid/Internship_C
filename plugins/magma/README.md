@@ -1,46 +1,197 @@
-# MITRE Caldera Plugin: Magma
-The UI/UX Vue.js framework of Caldera v5.
+# Magma Plugin
 
-## Dependencies
-* NodeJS (v20.19+ recommended)
-* Caldera (v5.0.0+)
+The UI/UX Vue.js framework for Caldera 5.
+
+## Overview
+
+Magma is the modern web interface for MITRE Caldera 5, built with Vue.js. It provides a responsive, intuitive user experience for managing operations, agents, adversaries, and other Caldera resources.
+
+### Features
+
+- **Modern UI**: Vue.js-based responsive interface
+- **Hot Reloading**: Development mode with automatic updates
+- **Accessibility**: Jest-axe accessibility testing
+- **Code Quality**: ESLint integration for code standards
+- **Component Testing**: Jest testing framework
+
+## Prerequisites
+
+```bash
+# Required
+- Node.js 20.19+ (recommended)
+- Caldera 5.0.0+
+- npm (comes with Node.js)
+```
 
 ## Installation
-If you are going to run Magma without developing on it, all you have to do is run Caldera with an extra flag once. To do so:
 
-In the Caldera directory:
-1. Run `python3 server.py --build`.
+### Production Use
 
-The `--build` flag automatically installs any dependencies, bundles the Vue frontend into a `dist` directory, and is served by the Caldera server.
-You will only have to use the `--build` flag again if you add any plugins.
+If running Magma without development:
+
+```bash
+# In the Caldera directory
+python3 server.py --build
+```
+
+The `--build` flag automatically:
+- Installs dependencies
+- Bundles the Vue frontend into dist directory
+- Serves the bundled application via Caldera server
+
+You will only need to use the `--build` flag again if you add plugins.
 
 ### Development
-To serve up the UI in a development environment (with hot-reloading, etc.), do
 
-In the magma directory:
-1. Run `npm install`.
-2. Run `npm run build`
+To serve the UI in development environment with hot-reloading:
 
-In the Caldera directory:
-1. Run `python3 server.py --uidev localhost`.
+```bash
+# In the magma directory
+npm install
+npm run build
 
-You can reach the UI in your browser at [http://localhost:3000](http://localhost:3000)
+# In the Caldera directory
+python3 server.py --uidev localhost
+```
+
+Access the UI at http://localhost:3000
+
+## Configuration
+
+```yaml
+# conf/local.yml
+plugins:
+  - magma
+```
+
+## Usage
+
+### Production Mode
+
+```bash
+# Build and serve
+python3 server.py --build
+
+# Access UI
+# Navigate to http://localhost:8888
+```
+
+### Development Mode
+
+```bash
+# Start development server
+cd plugins/magma
+npm run build
+
+# In separate terminal, start Caldera
+cd ../..
+python3 server.py --uidev localhost
+
+# Access development UI
+# Navigate to http://localhost:3000
+```
+
+## Testing
+
+### Run All Tests
+
+```bash
+npm run test-all
+```
+
+### Run Accessibility Tests Only
+
+```bash
+npm run test-accessibility
+```
+
+Magma uses Jest-axe for accessibility testing, which adheres to axe-core rules. Each rule can be modified or disabled when calling the axe function.
 
 ### Code Quality
-Currently Linting is done manually by the developer. To do so:
 
-1. Run `npm run lint`.
+Run linting manually:
 
-In order to run linting with it automatically formatting issues:
+```bash
+# Check for issues
+npm run lint
 
-1. Run `npm run lintfix`.
+# Auto-fix issues
+npm run lintfix
+```
 
-### Testing
-Magma uses [Jest](https://jestjs.io/) as its frontend testing framework. All tests are located at the `src/tests` directory.
+## File Structure
 
-1. Run `npm run test-all` to run all tests.
+```
+plugins/magma/
+├── package.json           # Node.js dependencies
+├── README.md             # This file
+├── src/
+│   ├── components/       # Vue components
+│   ├── tests/           # Jest tests
+│   └── [vue-app-files]  # Vue application source
+└── dist/                # Production build output (generated)
+```
 
-Each vue component is tested for accessibility in their respected file. This is done using a custom Jest matcher, [jest-axe](https://github.com/nickcolley/jest-axe). Jest-axe adheres to
-[axe-core rules](https://github.com/dequelabs/axe-core/blob/master/doc/rule-descriptions.md). Each one of these rules can be modified or disabled when calling the axe function.
+## Troubleshooting
 
-1. Run `npm run test-accessibility` to run only accessibility tests.
+### Build Fails
+
+**Symptom**: npm run build returns errors
+
+**Fix**:
+- Verify Node.js version (20.19+ recommended)
+- Delete node_modules and run npm install again
+- Check for conflicting dependencies
+- Review build logs for specific errors
+
+### Development Server Not Starting
+
+**Symptom**: Cannot access http://localhost:3000
+
+**Fix**:
+- Verify port 3000 is not in use
+- Check npm run build completed successfully
+- Ensure Caldera is running with --uidev flag
+- Review terminal for error messages
+
+### Hot Reloading Not Working
+
+**Symptom**: Changes not reflected in browser
+
+**Fix**:
+- Verify development mode is active
+- Check webpack configuration
+- Clear browser cache
+- Restart development server
+
+### Accessibility Test Failures
+
+**Symptom**: Jest-axe tests failing
+
+**Fix**:
+- Review axe-core rule violations in test output
+- Update components to meet accessibility standards
+- Adjust axe configuration if specific rules need modification
+- Consult axe-core documentation for rule details
+
+## Performance
+
+| Metric | Consideration |
+|--------|---------------|
+| Build Time | Varies by system, typically 1-2 minutes |
+| Bundle Size | Optimised for production |
+| Load Time | Fast initial load with code splitting |
+
+## Contributing
+
+Contributions to improve the UI/UX are welcome. Follow the linting and testing guidelines when submitting changes.
+
+## Licence
+
+Follows MITRE Caldera licensing (Apache 2.0)
+
+## Acknowledgements
+
+- **MITRE Caldera Team**: For the excellent framework
+- **Vue.js Community**: For the robust frontend framework
+- **Jest and axe-core**: For testing and accessibility tools

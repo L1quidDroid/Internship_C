@@ -1,55 +1,99 @@
-# Contributors
+# Contributing Guidelines
 
-# Reporting issues
-* Describe (in detail) what should have happened. Include any supporting information (stack traces, errors, etc)
-* Include any steps to replicate the issue
-* Indicate OS and Python versions
+## Reporting Issues
 
-# Development environment setup
-1. Clone repository:
-```
-git clone https://github.com/mitre/caldera.git --recursive
+When reporting issues, please provide:
+
+* Detailed description of what should have happened
+* Supporting information (stack traces, errors, logs)
+* Steps to replicate the issue
+* Operating system and Python version
+
+## Development Environment Setup
+
+### 1. Clone Repository
+
+```bash
+git clone https://github.com/triskele-labs/command-center.git --recursive
+cd command-center
 ```
 
-2. Create a virtualenv:
-```
+### 2. Create Virtual Environment
+
+```bash
 python3 -m venv venv
-. venv/bin/activate
+source venv/bin/activate
 ```
 
-3. Install dependencies:
-```
+### 3. Install Dependencies
+
+```bash
 pip install -r requirements.txt -r requirements-dev.txt
 ```
 
-4. Install the pre-commit hooks:
-```
+### 4. Install Pre-commit Hooks
+
+```bash
 pre-commit install --install-hooks
 ```
 
-# Developing
-We use the basic feature branch GIT flow. Fork this repository and create a feature branch off of master and when ready, submit a merge request. Make branch names and commits descriptive. A merge request should solve one problem, not many.
+## Development Workflow
 
-* Tests should cover any code changes that you have made. The test that you write should fail without your patch.
-* [Run tests](#run-the-tests)
+We use the feature branch Git flow:
 
-# Run the tests
-Tests can be run by executing:
-```
+1. Fork this repository
+2. Create a feature branch from master
+3. Make your changes with descriptive commits
+4. Submit a merge request
+
+**Guidelines:**
+* Each merge request should solve one problem
+* Branch names and commits should be descriptive
+* Tests must cover all code changes
+* New tests should fail without your patch
+
+## Running Tests
+
+### Run All Tests
+
+```bash
 python -m pytest --asyncio-mode=auto
 ```
-This will run all unit tests in your current development environment. Depending on the level of the change, you might need to run the test suite on various versions of Python. The unit testing pipeline will run the entire suite across multiple Python versions that we support when you submit your PR.
 
-We utilize `tox` to test Caldera in multiple versions of Python. This will only run if the interpreter is present on your system. To run tox, execute:
-```
+This runs all unit tests in your current development environment.
+
+### Run Tests Across Multiple Python Versions
+
+We use `tox` to test across multiple Python versions:
+
+```bash
 tox
 ```
 
-# Code Coverage
-You can generate code coverage reports manually or by running `tox`. To run them manually, you must have `coverage` installed and run the following commands:
-```
+This will only run if the required Python interpreters are installed on your system.
+
+## Code Coverage
+
+### Generate Coverage Reports
+
+```bash
 coverage run -m pytest
 coverage report
 coverage html
 ```
-You can find the code coverage report in `htmlcov/index.html`
+
+View the coverage report: `htmlcov/index.html`
+
+## Code Quality Standards
+
+* Follow PEP 8 style guidelines
+* Use Australian English spelling in documentation
+* Write clear, descriptive commit messages
+* Include docstrings for all public functions and classes
+* Ensure all tests pass before submitting pull requests
+
+## See Also
+
+- [Testing Guide](development/testing.md) - Comprehensive testing documentation
+- [Plugin Development](development/plugin-development.md) - Creating custom plugins
+- [Architecture Overview](architecture/system-overview.md) - Understanding the codebase

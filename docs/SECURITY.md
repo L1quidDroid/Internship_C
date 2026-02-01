@@ -1,72 +1,97 @@
-# Vulnerability Disclosure Policy 
+# Security Policy
 
-## Introduction
+## Vulnerability Disclosure Policy
 
-This policy is intended to give security researchers clear guidelines for conducting vulnerability discovery activities and to convey our preferences in how to submit discovered vulnerabilities to us.
+### Overview
 
-This policy describes **what systems and types of research** are covered under this policy, **how to send us** vulnerability reports, and **how long** we ask security researchers to wait before publicly disclosing vulnerabilities.
+This policy provides security researchers with clear guidelines for conducting vulnerability discovery activities and submitting discovered vulnerabilities to our team.
 
-We encourage you to contact us to report potential vulnerabilities in our systems.
+This policy describes:
+- What systems and types of research are covered
+- How to submit vulnerability reports
+- Expected timeline for disclosure
 
-**For vulnerability reports email us at <caldera@mitre.org>**. Reports may be submitted anonymously.  
+We encourage responsible disclosure of potential vulnerabilities in our systems.
 
-## Authorization 
+### Reporting Vulnerabilities
 
-If you make a good faith effort to comply with this policy during your security research, we will consider your research to be authorized we will work with you to understand and resolve the issue quickly.  
+**Contact:** security@triskelelabs.com
 
-## Guidelines
+Reports may be submitted anonymously.
 
-Under this policy, "research" means activities in which you:
+### Authorisation
 
--   Notify us as soon as possible after you discover a real or potential security issue.
+If you make a good faith effort to comply with this policy during your security research, we will consider your research to be authorised and will work with you to understand and resolve the issue quickly.
 
--   Only use exploits to the extent necessary to confirm a vulnerability's presence.
+### Research Guidelines
 
--   Provide us a reasonable amount of time to resolve the issue before you disclose it publicly.
+Under this policy, authorised research means activities in which you:
 
--   Do not submit a high volume of low-quality reports.  
+- Notify us as soon as possible after discovering a real or potential security issue
+- Only use exploits to the extent necessary to confirm a vulnerability's presence
+- Provide us a reasonable amount of time to resolve the issue before disclosing it publicly
+- Do not submit a high volume of low-quality reports
 
-## Reporting a vulnerability
+### Scope
 
-Information submitted under this policy will be used for defensive purposes only, i.e. to mitigate or remediate vulnerabilities. Since Caldera is run by a not-for-profit and is open source by nature, by
-submitting a vulnerability, you acknowledge that you have no expectation of payment. However, we will ensure that credit is given to the bug finder.  
+This policy applies to:
+- The Triskele Labs Purple Team Environment codebase
+- Official deployment configurations
+- Plugin architecture and official plugins
+- API endpoints and authentication mechanisms
 
-## What we would like to see from you
+Out of scope:
+- Third-party dependencies (report to upstream maintainers)
+- Social engineering or physical security testing
+- Denial of service testing without prior approval
 
-To help us triage and prioritize submissions, please include the following in your report:
+### What to Include in Your Report
 
-- Affected version of Caldera (committed hash or version number), operating system used, and python version.
+To help us triage and prioritise submissions, please include:
 
-- Describe the location the vulnerability was discovered and the potential impact of exploitation.
+- Operating system and Python version used
+- Description of the vulnerability location and potential impact
+- Detailed reproduction steps (proof of concept scripts or screenshots are helpful)
+- Suggested remediation if available
 
-- Offer a detailed description of the steps needed to reproduce the vulnerability (proof of concept scripts or screenshots are helpful).
+Reports in English are preferred but not required.
 
-- Be in English, if possible.  
+### Our Commitment
 
-## What you can expect from us
+When you share your contact information with us, we commit to coordinating with you as openly and quickly as possible:
 
-When you choose to share your contact information with us, we commit to coordinating with you as openly and as quickly as possible.
+- We will acknowledge receipt of your report within 10 business days
+- We will confirm the vulnerability's existence and maintain transparent communication about remediation steps
+- We will open reported issues to the public within 90 days or after a fix is released, whichever comes first
+- We will maintain an open dialogue to discuss issues and challenges
+- We will work with you on CVE issuance and ensure proper credit for your contribution
 
--   Within ***10 business days***, we will acknowledge that your report has been received.
+### Responsible Disclosure
 
--   After notifying the Caldera team, we will open reported issues to the public within ***90 days***, or after a fix is released (whichever comes first).
+Information submitted under this policy will be used for defensive purposes only to mitigate or remediate vulnerabilities. This is an open source project with no commercial backing, therefore there is no bug bounty programme. However, we will ensure appropriate credit is given to researchers who help improve platform security.
 
--   To the best of our ability, we will confirm the existence of the vulnerability to you and be as transparent as possible about what steps we are taking during the remediation process, including on issues or challenges that may delay resolution.
+### Questions and Feedback
 
--   We will maintain an open dialogue to discuss issues.
+Questions regarding this policy may be sent to security@triskelelabs.com. We welcome suggestions for improving this policy.
 
--   We will work with you in issuing a CVE and receiving proper credit for helping us secure our platform.  
+## Security Best Practices
 
-## Questions
+When deploying the platform:
 
-Questions regarding this policy may be sent to [**caldera@mitre.org**](mailto:caldera@mitre.org). We also invite you to contact us with suggestions for improving this policy.  
+- Change all default passwords immediately after installation
+- Use strong, unique passwords for all accounts
+- Enable TLS/SSL for production deployments
+- Restrict network access to required ports only
+- Regularly update dependencies and apply security patches
+- Use API key authentication for automated integrations
+- Implement role-based access control
+- Enable audit logging for all operations
+- Regularly backup configuration and data
+- Review and rotate API keys periodically
 
-## Document change history
+## See Also
 
-  -----------------------------------------------------------------------------
-  **Version**   **Date**                                **Description**
-  ------------- --------------------------------------- -----------------------
-  1.0           *Nov 15, 2022*                       First issuance.
-
-  -----------------------------------------------------------------------------
+- [Installation Guide](getting-started/installation.md) - Secure installation procedures
+- [Configuration Reference](getting-started/configuration.md) - Security configuration options
+- [Deployment Guide](deployment/local-deployment.md) - Production security considerations
 

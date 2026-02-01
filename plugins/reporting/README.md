@@ -2,12 +2,28 @@
 
 Automated PDF report generation for MITRE Caldera purple team operations.
 
-## Features
+## Overview
+
+The Reporting Plugin automatically generates professional PDF reports for Caldera operations, providing comprehensive analysis of attack techniques, detection coverage, and execution results.
+
+### Features
 
 - **Auto-generation**: Reports generated automatically when operations complete
-- **ELK Integration**: Detection coverage correlation from `purple-team-logs-*` index
+- **ELK Integration**: Detection coverage correlation from purple-team-logs index
 - **Professional PDFs**: Triskele Labs branded reports with ATT&CK analysis
-- **Performance**: <8s generation for 30-technique operations
+- **Performance**: Sub 8-second generation for 30-technique operations
+
+## Prerequisites
+
+```bash
+# Required
+- Python 3.10+
+- Caldera 5.x
+- ReportLab (PDF generation)
+
+# Optional
+- Elasticsearch (for detection coverage)
+```
 
 ## Installation
 
@@ -122,7 +138,7 @@ Reports are automatically generated when operations complete:
 4. PDF generated and saved to `output_dir`
 5. Logs show efficiency metrics
 
-**Performance Target:** <8.5s total (event → PDF)
+**Performance Target:** Sub 8.5 seconds total (event to PDF)
 
 ## File Structure
 
@@ -164,17 +180,50 @@ curl -X POST http://localhost:8888/plugin/reporting/generate \
 
 ## Troubleshooting
 
-### Report not generating
-- Check operation state is `finished`
-- Verify `plugins/reporting/data/reports/` directory exists
-- Check Caldera logs for `[reporting]` errors
+### Report Generation Fails
 
-### Detection data unavailable
-- ELK connection failed (check network/auth)
-- Reports still generate with "Detection correlation unavailable" placeholder
-- Verify orchestrator plugin ELK config is correct
+**Symptom**: PDF generation returns error
 
-### Performance issues
-- Generation >8s usually means large operation (>100 techniques)
-- Check `max_workers` setting
-- Monitor memory usage (target: <100MB per report)
+**Fix**:
+- Check operation ID exists
+- Verify ReportLab dependencies installed
+- Check logs for specific error messages
+- Ensure output directory is writable
+
+### ELK Detection Data Missing
+
+**Symptom**: Report shows no detection coverage
+
+**Fix**:
+- Verify orchestrator plugin is enabled and configured
+- Check ELK connectivity settings
+- Confirm operations have been tagged in Elasticsearch
+- Review ELK index pattern configuration
+
+## Performance
+
+| Metric | Target |
+|--------|--------|
+| Generation Time | Sub 8s for 30 techniques |
+| PDF Size | Typically 40-60 KB |
+| Memory Usage | Less than 100 MB |
+
+## Security Considerations
+
+- **File Permissions**: Reports stored with restricted permissions
+- **Input Validation**: Operation IDs validated before processing
+- **Path Sanitisation**: Output paths sanitised to prevent traversal
+- **ELK Credentials**: Use read-only API keys for ELK access
+
+## Contributing
+
+Developed by Triskele Labs for purple team engagements. For issues or enhancements, contact your Caldera administrator.
+
+## Licence
+
+Follows MITRE Caldera licensing (Apache 2.0)
+
+## Acknowledgements
+
+- **MITRE Caldera Team**: For the excellent framework
+- **Triskele Labs**: For purple team automation requirements

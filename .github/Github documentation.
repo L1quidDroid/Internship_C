@@ -1,0 +1,304 @@
+Here's a structured GitHub Copilot prompt using best practices for documentation generation:
+
+## GitHub Copilot Prompt
+
+```markdown
+# Task: Restructure and Consolidate Caldera Repository Documentation
+
+## Context
+This is a Caldera adversary emulation platform repository with extensive but scattered documentation. The goal is to create a well-organized, user-friendly documentation structure that serves both end users and developers.
+
+## Current State
+The repository contains:
+- Multiple deployment guides (DEPLOYMENT-README.md, DEPLOYMENT-INSTRUCTIONS.md, DEPLOYMENT-ERROR-ANALYSIS.md)
+- Phase-specific implementation docs (PHASE-4-*.md files)
+- Existing core docs (README.md, ARCHITECTURE.md, SECURITY.md, CONTRIBUTING.md)
+- Development artifacts (SESSION-SUMMARY-*.md, ERROR-SUMMARY.txt)
+- Quick references (QUICK_REFERENCE.md, END_TO_END_USER_JOURNEY.md)
+
+## Objectives
+1. Create a comprehensive documentation structure in `/docs` directory
+2. Consolidate redundant documentation files
+3. Fill gaps in user guides, API references, and plugin development
+4. Maintain clear navigation and discoverability
+5. Archive development artifacts appropriately
+
+## Target Documentation Structure
+
+### /docs Directory Organization
+```
+docs/
+├── getting-started/
+│   ├── installation.md
+│   ├── quick-start.md
+│   └── configuration.md
+├── user-guide/
+│   ├── overview.md
+│   ├── operations.md
+│   ├── agents.md
+│   └── reporting.md
+├── technical/
+│   ├── architecture.md
+│   ├── api-reference.md
+│   └── database-schema.md
+├── development/
+│   ├── plugin-development.md
+│   ├── contributing.md
+│   └── testing.md
+├── deployment/
+│   ├── local-deployment.md
+│   ├── azure-deployment.md
+│   ├── docker-deployment.md
+│   └── troubleshooting.md
+└── reference/
+    ├── quick-reference.md
+    ├── faq.md
+    └── changelog.md
+```
+
+## Specific Actions Required
+
+### 1. Consolidation Tasks
+- Merge DEPLOYMENT-README.md, DEPLOYMENT-INSTRUCTIONS.md, and DEPLOYMENT-ERROR-ANALYSIS.md into `/docs/deployment/`
+- Extract troubleshooting content into dedicated troubleshooting guide
+- Transform END_TO_END_USER_JOURNEY.md into structured user guide sections
+- Archive PHASE-4-* files to `/archive/development-history/`
+
+### 2. New Documentation to Create
+- API Reference with REST endpoint specifications
+- Plugin Development Guide with examples
+- FAQ addressing common user questions
+- Changelog for version tracking
+- Migration guides for breaking changes
+
+### 3. Enhancement Tasks
+- Expand SECURITY.md with authentication/authorization details
+- Add navigation links between related documents
+- Create index pages for each docs subdirectory
+- Add code examples and screenshots where relevant
+
+## Requirements and Constraints
+
+### Writing Style
+- Clear, concise technical writing
+- Active voice preferred
+- Step-by-step instructions for procedures
+- Code examples with syntax highlighting
+- Consistent heading hierarchy
+
+### Format Standards
+- Markdown format for all documentation
+- Use tables for configuration options
+- Include prerequisite sections
+- Add "Next Steps" navigation at document end
+- Cross-reference related documentation
+
+### Content Priorities
+1. Installation and quick start (highest priority for new users)
+2. User operations guide
+3. Deployment options
+4. API reference for integrations
+5. Development and contribution guides
+
+## Example Output Format
+
+For each documentation file, include:
+
+```markdown
+# [Title]
+
+## Overview
+Brief description of what this document covers
+
+## Prerequisites
+- Required knowledge
+- Required software/access
+- Related documentation to read first
+
+## [Main Content Sections]
+...
+
+## Troubleshooting
+Common issues and solutions
+
+## Next Steps
+- [Link to related documentation]
+- [Link to advanced topics]
+
+## See Also
+- [Related references]
+```
+
+## Validation Criteria
+- [ ] All existing content preserved or archived appropriately
+- [ ] Clear navigation path from README to specialized docs
+- [ ] No duplicate or contradictory information
+- [ ] Complete user journey from installation to operation
+- [ ] Developer documentation covers plugin creation and contribution
+- [ ] All code examples tested and functional
+- [ ] Links verified and working
+- [ ] Consistent terminology throughout
+
+## Notes
+- Preserve all technical accuracy from existing documentation
+- Maintain security warnings and best practices
+- Keep troubleshooting insights from error analysis documents
+- Reference MITRE ATT&CK framework where applicable
+- Include Azure-specific deployment considerations
+```
+
+## Example Prompts for Specific Files
+
+### Example 1: Creating API Reference
+
+```markdown
+Create a comprehensive API reference document for the Caldera REST API based on the codebase.
+
+Requirements:
+- Document all REST endpoints with HTTP methods
+- Include authentication requirements
+- Provide request/response examples in JSON
+- Add error codes and descriptions
+- Organize by functional area (Agents, Operations, Abilities, etc.)
+- Include rate limiting information if applicable
+
+Format as: /docs/technical/api-reference.md
+
+Use this structure:
+# API Reference
+## Authentication
+## Endpoints
+### Agents
+### Operations
+### Abilities
+...
+## Error Codes
+## Rate Limiting
+```
+
+### Example 2: Consolidating Deployment Docs
+
+```markdown
+Consolidate DEPLOYMENT-README.md, DEPLOYMENT-INSTRUCTIONS.md, and DEPLOYMENT-ERROR-ANALYSIS.md into organized deployment documentation.
+
+Create three files:
+1. /docs/deployment/azure-deployment.md - Azure-specific using Bicep templates
+2. /docs/deployment/docker-deployment.md - Docker Compose configurations
+3. /docs/deployment/troubleshooting.md - Common deployment issues and solutions
+
+Requirements:
+- Extract Azure Bicep deployment steps from existing docs
+- Document all environment variables from .env.template
+- Create troubleshooting decision tree from error analysis
+- Include network configuration and firewall requirements
+- Add verification steps after deployment
+- Reference quick-start-b1s.sh script usage
+
+Remove redundancy but preserve all unique technical details.
+```
+
+### Example 3: Plugin Development Guide
+
+```markdown
+Create a plugin development guide for extending Caldera functionality.
+
+Use the orchestrator plugin as the primary example. Structure:
+
+# Plugin Development Guide
+
+## Overview
+What plugins are and why create them
+
+## Plugin Architecture
+- Directory structure requirements
+- Hook points and interfaces
+- Configuration file format
+
+## Step-by-Step Tutorial
+Create a simple reporting plugin from scratch:
+1. Directory setup
+2. Configuration file
+3. Python module structure
+4. Registering hooks
+5. Testing locally
+6. Deployment
+
+## Advanced Topics
+- Custom UI components
+- Database integration
+- External API integration
+- Performance considerations
+
+## Examples
+- Orchestrator plugin walkthrough
+- Branding customization
+- Custom planners
+
+Include actual code snippets from plugins/ directory.
+```
+
+### Example 4: User Operations Guide
+
+```markdown
+Transform END_TO_END_USER_JOURNEY.md into a structured operations guide for the web interface.
+
+Create /docs/user-guide/operations.md with:
+
+## Sections Required:
+1. Creating Adversary Profiles
+2. Configuring Abilities and Techniques
+3. Deploying and Managing Agents
+4. Launching Operations
+5. Monitoring Operation Progress
+6. Analyzing Results
+7. Generating Reports
+
+For each section:
+- Include screenshots of UI (note where screenshots should be added)
+- Provide step-by-step procedures
+- Explain decision points
+- Add tips and best practices
+- Link to relevant MITRE ATT&CK techniques
+
+Keep user journey flow but organize into logical reference sections.
+```
+
+### Example 5: Comprehensive FAQ
+
+```markdown
+Create a FAQ document based on common issues found in ERROR-SUMMARY.txt, troubleshooting documentation, and likely user questions.
+
+Organize into categories:
+- Installation and Setup
+- Agent Deployment
+- Operations and Campaigns
+- Performance and Scaling
+- Integration with Other Tools
+- Security and Access Control
+- Troubleshooting
+
+For each question:
+- Clear question in user's language
+- Concise answer
+- Link to detailed documentation
+- Code examples where relevant
+
+Include at least 20-25 questions covering beginner to advanced users.
+
+Format as: /docs/reference/faq.md
+```
+
+## Best Practices Applied
+
+**Specificity**: Each prompt includes exact file paths, structure requirements, and source materials.
+
+**Context**: Provides background about the repository state and documentation goals.
+
+**Constraints**: Defines format standards, writing style, and validation criteria.
+
+**Examples**: Shows desired output structure with actual sections and formatting.
+
+**Actionable**: Breaks down complex tasks into clear, executable steps with checkboxes.
+
+**Iterative**: Each prompt focuses on one documentation area, allowing for review before proceeding.
+
