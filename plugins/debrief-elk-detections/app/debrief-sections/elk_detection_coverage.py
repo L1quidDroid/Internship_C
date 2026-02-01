@@ -73,19 +73,26 @@ class DebriefReportSection(BaseReportSection):
             alignment=TA_CENTER,
         )
     
-    async def generate_section_elements(self, styles, operations, agents, graph_files):
+    async def generate_section_elements(self, styles, **kwargs):
         """
         Generate PDF flowables for ELK detection correlation section.
         
         Args:
             styles: ReportLab StyleSheet
-            operations: List of Caldera Operation objects
-            agents: Runtime agents (unused)
-            graph_files: SVG graphs (unused)
+            **kwargs: Keyword arguments including:
+                operations: List of Caldera Operation objects
+                agents: Runtime agents (unused)
+                graph_files: SVG graphs (unused)
+                selected_sections: Selected section names (unused)
         
         Returns:
             List of ReportLab Flowable objects
         """
+        # Extract parameters from kwargs
+        operations = kwargs.get('operations', [])
+        agents = kwargs.get('agents', [])
+        graph_files = kwargs.get('graph_files', {})
+        
         flowables = []
         
         # Section title and description

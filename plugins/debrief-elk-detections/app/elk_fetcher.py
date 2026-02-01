@@ -267,6 +267,4 @@ async def _validate_elk_schema(es: AsyncElasticsearch, index_pattern: str, confi
     except Exception as e:
         log.warning(f'Schema validation skipped due to error: {e}')
         # Don't fail hard - allow queries to proceed and fail naturally if schema is wrong
-            return (None, None, None, None, False)
-    
-    return (elk_url, elk_user, elk_pass, elk_api_key, verify_ssl)
+        # Validation is optional - queries will fail naturally if schema is incompatible
