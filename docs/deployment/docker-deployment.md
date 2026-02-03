@@ -1,6 +1,18 @@
+---
+
+**⚠️ INTERNSHIP PROJECT DOCUMENTATION**
+
+This document describes Docker deployment approaches used during a Triskele Labs internship (January-February 2026) by Tony To. This is educational documentation for portfolio purposes, NOT official Triskele Labs documentation or production deployment guidance.
+
+**Status**: Learning Exercise | **NOT FOR**: Production Use
+
+See [INTERNSHIP_DISCLAIMER.md](../../INTERNSHIP_DISCLAIMER.md) for complete information.
+
+---
+
 # Docker Deployment Guide
 
-This guide covers deploying the Triskele Labs Command Center using Docker containers for portable, consistent deployments.
+This guide covers deploying this internship project using Docker containers for portable, consistent testing and development environments.
 
 ## Prerequisites
 
@@ -394,7 +406,7 @@ docker logs -t caldera
 
 ### Using Volumes
 
-For production deployments, use named volumes for data persistence:
+For learning environment setup, use named volumes for data persistence:
 
 ```yaml
 version: '3'
@@ -671,7 +683,9 @@ Without proper `.dockerignore`, builds may include unwanted files.
 3. **Tag images properly** - Use semantic versioning
 4. **Document customisations** - Maintain clear build documentation
 
-## Production Deployment
+## Development Environment Setup
+
+**⚠️ INTERNSHIP PROJECT**: This section describes development environment setup for portfolio demonstration, NOT production deployment guidance.
 
 ### Production-Ready Compose File
 

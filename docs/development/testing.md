@@ -1,6 +1,18 @@
+---
+
+**⚠️ INTERNSHIP PROJECT DOCUMENTATION**
+
+This document describes testing approaches used during a Triskele Labs internship (January-February 2026) by Tony To. This is educational documentation for portfolio purposes, NOT official Triskele Labs documentation or production software guidance.
+
+**Status**: Learning Exercise | **NOT FOR**: Production Use
+
+See [INTERNSHIP_DISCLAIMER.md](../../INTERNSHIP_DISCLAIMER.md) for complete information.
+
+---
+
 # Testing Guide
 
-This guide covers testing strategies, conventions, and best practices for Caldera core and plugin development. It includes examples of unit tests, integration tests, fixtures, and CI/CD integration.
+This guide covers testing strategies, conventions, and best practices demonstrated in this internship project. It includes examples of unit tests, integration tests, fixtures, and testing approaches developed during the internship.
 
 ## Prerequisites
 

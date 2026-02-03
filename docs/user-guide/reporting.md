@@ -1,8 +1,20 @@
+---
+
+**⚠️ INTERNSHIP PROJECT DOCUMENTATION**
+
+This document describes work completed during a Triskele Labs internship (January-February 2026) by Tony To. This is educational documentation for portfolio purposes, NOT official Triskele Labs documentation or production software guidance.
+
+**Status**: Learning Exercise | **NOT FOR**: Production Use
+
+See [INTERNSHIP_DISCLAIMER.md](../../INTERNSHIP_DISCLAIMER.md) for complete information.
+
+---
+
 # Report Generation and Customisation
 
 ## Introduction
 
-This guide covers the generation of branded assessment reports using the Triskele Labs Command Center. The platform's integrated reporting capabilities produce executive-ready deliverables with customised branding using the Triskele design system.
+This guide covers the generation of branded assessment reports developed during this internship project. The custom reporting plugin demonstrates PDF generation capabilities for educational purposes.
 
 ## Prerequisites
 

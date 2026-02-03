@@ -1,6 +1,18 @@
+---
+
+**⚠️ INTERNSHIP PROJECT DOCUMENTATION**
+
+This document describes plugin development work completed during a Triskele Labs internship (January-February 2026) by Tony To. This is educational documentation for portfolio purposes, NOT official Triskele Labs documentation or production software guidance.
+
+**Status**: Learning Exercise | **NOT FOR**: Production Use
+
+See [INTERNSHIP_DISCLAIMER.md](../../INTERNSHIP_DISCLAIMER.md) for complete information.
+
+---
+
 # Plugin Development Guide
 
-This guide provides comprehensive instructions for developing Caldera plugins, including architecture patterns, hook implementations, API integration, and troubleshooting.
+This guide documents the plugin development approaches and patterns demonstrated in this internship project, including architecture patterns, hook implementations, and API integration examples.
 
 ## Prerequisites
 

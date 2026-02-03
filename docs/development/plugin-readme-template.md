@@ -1,3 +1,15 @@
+---
+
+**⚠️ INTERNSHIP PROJECT DOCUMENTATION**
+
+This template was created during a Triskele Labs internship (January-February 2026) by Tony To. This is educational documentation for portfolio purposes, NOT official Triskele Labs documentation.
+
+**Status**: Learning Exercise | **NOT FOR**: Production Use
+
+See [INTERNSHIP_DISCLAIMER.md](../../INTERNSHIP_DISCLAIMER.md) for complete information.
+
+---
+
 # Plugin Name
 
 Brief one-line description of what the plugin does.

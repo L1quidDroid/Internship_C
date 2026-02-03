@@ -1,8 +1,20 @@
+---
+
+**⚠️ INTERNSHIP PROJECT DOCUMENTATION**
+
+This document describes work completed during a Triskele Labs internship (January-February 2026) by Tony To. This is educational documentation for portfolio purposes, NOT official Triskele Labs documentation or production software guidance.
+
+**Status**: Learning Exercise | **NOT FOR**: Production Use
+
+See [INTERNSHIP_DISCLAIMER.md](../../INTERNSHIP_DISCLAIMER.md) for complete information.
+
+---
+
 # System Architecture Overview
 
 ## Introduction
 
-The Triskele Labs Command Center employs a streamlined architecture optimised for Managed Security Service Providers (MSPs). This document outlines the platform's core architecture, resource optimisation strategies, and key capabilities.
+This internship project employs a streamlined architecture developed as a learning exercise in security automation. This document outlines the project's core architecture, resource considerations, and key capabilities demonstrated during the internship.
 
 ## Prerequisites
 

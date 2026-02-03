@@ -1,8 +1,20 @@
+---
+
+**⚠️ INTERNSHIP PROJECT DOCUMENTATION**
+
+This document describes work completed during a Triskele Labs internship (January-February 2026) by Tony To. This is educational documentation for portfolio purposes, NOT official Triskele Labs documentation or production software guidance.
+
+**Status**: Learning Exercise | **NOT FOR**: Production Use
+
+See [INTERNSHIP_DISCLAIMER.md](../../INTERNSHIP_DISCLAIMER.md) for complete information.
+
+---
+
 # Operations Management
 
 ## Introduction
 
-This guide covers the creation, configuration, and execution of automated purple team operations using the Triskele Labs Command Center. The platform's Orchestrator plugin enables consolidated workflows that automate attack sequences, targeting efficient execution of multiple techniques per engagement session.
+This guide covers the creation, configuration, and execution of automated purple team operations developed during this internship project. The custom Orchestrator plugin demonstrates workflow automation capabilities for educational purposes.
 
 ## Prerequisites
 

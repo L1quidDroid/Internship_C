@@ -1,0 +1,675 @@
+I'll help you sanitize the documentation to clearly position this as an internship project while maintaining professional quality without misrepresenting it as official Triskele Labs production software.
+Critical Legal Disclaimers to Add
+Primary Disclaimer (Add to Every Document at the bottom) 
+
+text
+---
+**DISCLAIMER**: This repository documents an internship project completed at 
+Triskele Labs between January-February 2026. This is a learning exercise and 
+proof-of-concept implementation, NOT production software or official Triskele 
+Labs intellectual property. All code and documentation are for educational 
+portfolio purposes only.
+
+**Author**: Tony To (Intern - Detection Engineer and Automation Officer , Triskele Labs)  
+**Status**: Academic/Portfolio Project  
+**Visibility**: Internal/Educational Use Only  
+---
+
+Document Sanitization Checklist
+File 1: README.md Changes
+REMOVE These Statements:
+
+text
+❌ "A Caldera-based purple team automation platform for managed service providers"
+❌ "Production deployment guidance"
+❌ "For security vulnerability reports, see Security Policy"
+❌ "Users are responsible for ensuring appropriate authorisation"
+❌ Any references to "clients" or "service providers"
+REPLACE With:
+
+text
+✅ "An internship project exploring Caldera plugin development for purple team workflows"
+✅ "Development and Testing Guide"
+✅ "For questions about this internship project, contact [your email]"
+✅ "This is a sandboxed learning environment - not for production use"
+✅ "Academic exercise in security automation"
+Updated README.md Header:
+
+text
+# Internship Project: Purple Team Automation Exploration
+
+**Internship Project by Tony To**  
+*Triskele Labs Internship Programme (Jan-Feb 2026)*
+
+> **Note**: This is an educational project developed during an internship at 
+> Triskele Labs. It demonstrates plugin development skills and security 
+> automation concepts, but is NOT production software. All code is exploratory 
+> and for portfolio demonstration purposes.
+
+## Project Overview
+
+This repository documents my exploration of Caldera plugin development during 
+my internship at Triskele Labs. The project focuses on:
+
+- Learning Caldera's plugin architecture through hands-on development
+- Exploring ELK Stack integration patterns for security event correlation
+- Practicing Python development in a security automation context
+- Building a portfolio piece demonstrating security engineering skills
+
+**This is NOT**:
+- Production-ready software
+- Official Triskele Labs intellectual property
+- Intended for deployment in real environments
+- A commercial product or service
+
+File 2: LICENSE File Changes
+CURRENT PROBLEM: Apache-2.0 license implies this is official publishable software
+SOLUTION: Replace with Educational/Portfolio License
+NEW LICENSE File:
+
+text
+# Educational Project License
+
+Copyright (c) 2026 Tony To
+
+## Terms of Use
+
+This project is an **internship portfolio piece** created for educational 
+purposes during an internship at Triskele Labs (January-February 2026).
+
+### Permitted Use
+- ✅ Viewing for educational purposes
+- ✅ Review by potential employers or academic institutions
+- ✅ Reference in portfolio materials by the author
+- ✅ Study of code architecture and patterns
+
+### Prohibited Use
+- ❌ Commercial use or deployment
+- ❌ Production deployment in any environment
+- ❌ Claiming this as official Triskele Labs software
+- ❌ Public distribution or forking without author permission
+- ❌ Use in client-facing or commercial security operations
+
+### Attribution
+When referencing this project:
+- Cite as: "Internship Project by Tony To (Triskele Labs Internship, 2026)"
+- NOT as: "Triskele Labs Purple Team Platform"
+- Include disclaimer that this is educational work, not production software
+
+### Triskele Labs
+This project was completed during an internship at Triskele Labs. Triskele 
+Labs does not endorse, support, or take responsibility for this code. All 
+opinions, implementations, and any errors are solely those of the intern 
+author.
+
+### Disclaimer
+THIS SOFTWARE IS PROVIDED "AS IS" FOR EDUCATIONAL PURPOSES ONLY. NO WARRANTY, 
+LIABILITY, OR SUPPORT IS PROVIDED. THIS IS NOT PRODUCTION SOFTWARE.
+
+---
+
+For questions about this project: [your contact email]
+For questions about Triskele Labs: [supervisor's email if approved]
+
+File 3: Documentation Rewording
+Search and Replace Across All Docs:
+Remove	Replace With
+"production deployment"	"development environment setup"
+"managed service providers"	"internship learning environment"
+"clients"	"test environments"
+"enterprise"	"learning lab"
+"Triskele Labs platform"	"internship project exploring..."
+"official Triskele Labs"	"developed during Triskele Labs internship"
+"our purple team solution"	"this educational purple team exploration"
+"for security operations"	"demonstrating security automation concepts"
+
+Copilot Search-and-Replace Prompt:
+
+text
+Search all markdown files in docs/ directory for these phrases:
+- "production"
+- "client"
+- "managed service provider"
+- "enterprise"
+- "official"
+- "Triskele Labs platform"
+
+For each occurrence:
+1. Show file path and line number
+2. Show surrounding context (3 lines before/after)
+3. Suggest educational/portfolio alternative wording
+4. Verify replacement doesn't claim production use
+
+Return as table:
+| File | Line | Original | Suggested Replacement |
+
+File 4: Plugin Documentation Headers
+Add to Every Plugin README:
+
+text
+# [Plugin Name] - Internship Development Exercise
+
+**Project Context**: Internship Portfolio Project  
+**Developer**: Tony To (Intern)  
+**Organisation**: Triskele Labs (Internship Programme)  
+**Timeline**: January-February 2026  
+**Status**: Educational Proof-of-Concept  
+
+---
+
+## ⚠️ Important Notice
+
+This plugin was developed as part of an **internship learning exercise** to 
+explore Caldera's plugin architecture and security automation patterns. 
+
+**This is NOT**:
+- Production-ready code
+- Officially tested or validated software  
+- Intended for real security operations
+- Supported or maintained software
+
+**Purpose**: Demonstrate plugin development skills and security automation 
+concepts for portfolio and educational purposes.
+
+---
+
+## Learning Objectives
+
+This plugin development exercise aimed to:
+1. [State learning goal, e.g., "Understand event-driven architectures in Python"]
+2. [e.g., "Practice ELK Stack integration patterns"]
+3. [e.g., "Develop PDF generation skills with ReportLab"]
+
+## What I Learned
+
+[Personal reflection on technical skills gained]
+
+---
+
+[Rest of technical documentation]
+
+File 5: Architecture Documentation
+docs/architecture/system-overview.md - Reframe as Learning Exercise
+REMOVE:
+
+text
+❌ "Designed for managed service providers"
+❌ "Scalable architecture for enterprise deployments"
+❌ "Production-grade security controls"
+REPLACE:
+
+text
+✅ "Exploring plugin architecture patterns in Caldera"
+✅ "Demonstrating modular design principles"
+✅ "Implementing security best practices as a learning exercise"
+Updated Architecture Introduction:
+
+text
+# System Architecture - Learning Documentation
+
+**Document Purpose**: This document explores the architectural patterns I 
+learned while developing Caldera plugins during my Triskele Labs internship.
+
+## Educational Context
+
+This architecture demonstrates my understanding of:
+- Plugin-based extensibility patterns
+- Event-driven service communication
+- Security automation workflows
+- Integration with SIEM platforms (ELK Stack)
+
+**Disclaimer**: This architecture was designed as a learning exercise. It has 
+not been reviewed for production use, security-hardened for real environments, 
+or tested at scale.
+
+## Design Decisions (Learning Rationale)
+
+I chose this architecture to learn:
+- **Seven-plugin approach**: To understand modular design and separation of concerns
+- **Event-driven patterns**: To practice asynchronous service communication
+- **ELK integration**: To gain experience with security data correlation
+
+[Rest of documentation with "I learned..." framing]
+
+Making It Look Professional Without Claiming Official Status
+Strategy 1: Use Academic/Portfolio Framing
+Good Examples:
+
+text
+✅ "This project demonstrates my ability to..."
+✅ "During my internship, I explored..."
+✅ "This portfolio piece showcases..."
+✅ "Built as a learning exercise under mentorship at Triskele Labs"
+✅ "Developed to understand [technology/pattern]"
+Avoid:
+
+text
+❌ "Our platform provides..."
+❌ "Triskele Labs offers..."
+❌ "This solution enables enterprises to..."
+❌ "Designed for production security operations"
+
+Strategy 2: Professional Documentation Structure (Without Production Claims)
+Keep Professional Elements:
+* ✅ Clean README structure
+* ✅ Comprehensive documentation
+* ✅ Architecture diagrams
+* ✅ Code quality standards
+* ✅ Test coverage
+* ✅ Clear installation instructions
+Label Everything as Educational:
+
+text
+# Installation Guide - Development Environment
+
+**Purpose**: This guide helps reviewers set up a development environment to 
+explore the codebase and understand the implementation.
+
+**Intended Users**: 
+- Portfolio reviewers
+- Technical interviewers
+- Fellow students/interns learning Caldera
+
+**NOT Intended For**:
+- Production deployment
+- Client-facing operations
+- Commercial use
+
+Strategy 3: "Internship Project Presentation" Template
+For Senior Leadership Presentation:
+
+text
+# Purple Team Automation - Internship Project Presentation
+
+**Presented by**: Tony To  
+**Role**: Intern - Detection Engineer and Automation Officer  
+**Internship Period**: January - February 2026  
+**Supervisor**: [Supervisor name]  
+
+---
+
+## Project Brief
+
+**Objective**: Develop custom Caldera plugins to explore purple team automation 
+concepts and demonstrate plugin development capabilities.
+
+**Scope**: Educational proof-of-concept in controlled lab environment
+
+**Deliverables**:
+1. Three custom Caldera plugins (Orchestrator, Reporting, Branding)
+2. Integration with ELK Stack (learning exercise)
+3. Comprehensive technical documentation
+4. Portfolio-ready codebase
+
+---
+
+## Skills Demonstrated
+
+This internship project showcases:
+- Python development in security contexts
+- Plugin architecture implementation
+- Event-driven system design
+- API integration (ELK Stack)
+- PDF generation (ReportLab)
+- Vue.js basic customisation
+- Git workflow and documentation practices
+
+---
+
+## Technical Achievements
+
+[Present technical details but frame as learning outcomes]
+
+**What I Built**: [Describe features]
+**What I Learned**: [Technical skills gained]
+**Challenges Overcome**: [Problem-solving examples]
+
+---
+
+## Demonstration
+
+**Disclaimer**: This demonstration uses a sandboxed lab environment. The code 
+shown is educational and has not been security-hardened for production use.
+
+[Demo of functionality]
+
+---
+
+## Portfolio Value
+
+This project demonstrates to potential employers:
+- Ability to work with complex security frameworks (Caldera)
+- Plugin development and modular design skills
+- Integration capabilities (ELK Stack, REST APIs)
+- Documentation and code quality practices
+- Problem-solving in security automation contexts
+
+---
+
+## Questions?
+
+**Project Documentation**: [GitHub repo URL]  
+**Contact**: [Your email]  
+**Supervisor**: [Supervisor email if approved]
+
+**Reminder**: This is an internship learning project, not production software.
+
+Strategy 4: Repository Visibility Settings
+GitHub Repository Configuration:
+
+text
+# Repository Settings Recommendations
+
+**Visibility**: PRIVATE (not public)
+
+**Reason**: This is an internship project. Keeping private ensures:
+- No misrepresentation as official Triskele Labs software
+- Controlled sharing only with portfolio reviewers
+- No public liability or support expectations
+- Protection of any Triskele Labs internal patterns
+
+**Sharing Method**:
+- Add specific GitHub users as collaborators (potential employers)
+- Share via portfolio website with password protection
+- PDF export for email sharing
+- Screen recording demo videos (no code download)
+
+**Repository Description**:
+"Internship project exploring Caldera plugin development (Jan-Feb 2026). 
+Educational proof-of-concept, not production software."
+
+**Topics/Tags**:
+- internship-project
+- portfolio
+- educational
+- security-automation-learning
+- NOT: production, enterprise, platform
+
+Strategy 5: Footer on Every Document
+Add to Bottom of Every Markdown File:
+
+text
+---
+
+## About This Document
+
+**Project**: Triskele Labs Internship Portfolio Project  
+**Author**: Tony To (Intern - Detection Engineer and Automation Officer)  
+**Date**: February 2026  
+**Status**: Educational Documentation  
+
+**Disclaimer**: This documentation describes an internship learning project. 
+It is not official Triskele Labs documentation, and the software described is 
+not production-ready or officially supported.
+
+**For Portfolio Review**: This project demonstrates my technical capabilities 
+and learning outcomes during my internship. It is shared for employment 
+consideration and educational purposes only.
+
+---
+
+Legal Review Checklist
+Before Showing to Senior Leadership
+
+text
+# Pre-Presentation Legal Checklist
+
+- [ ] All references to "production" removed or reframed as "development"
+- [ ] No claims about "Triskele Labs platform" or "official software"
+- [ ] Apache-2.0 license replaced with Educational/Portfolio license
+- [ ] Every document has internship/educational disclaimer
+- [ ] No client references or service provider language
+- [ ] Repository is PRIVATE (not public)
+- [ ] README clearly states "internship project"
+- [ ] No security vulnerabilities or sensitive data in code
+- [ ] No Triskele Labs confidential information exposed
+- [ ] Supervisor has reviewed and approved repository content
+- [ ] Clear attribution: "by Tony To" not "by Triskele Labs"
+
+## Final Verification Questions
+
+1. **Could someone mistake this for official Triskele Labs software?**
+   - If YES → Add more disclaimers
+
+2. **Are there any production/enterprise claims?**
+   - If YES → Reword as educational/learning context
+
+3. **Is the license appropriate for portfolio work?**
+   - If NO → Use Educational/Portfolio license
+
+4. **Would Triskele Labs be liable for any claims about this code?**
+   - If YES → Add stronger disclaimers separating intern work from company
+
+5. **Is it clear this is YOUR work during an internship, not company IP?**
+   - If NO → Clarify authorship and context
+
+Supervisor Approval Template
+Send This to Your Supervisor:
+
+text
+Subject: Internship Project Documentation - Review Request
+
+Hi [Supervisor],
+
+I've completed documentation for my internship project (Caldera plugin 
+development) and would like your approval before sharing it in my portfolio 
+or with potential employers.
+
+I've ensured the documentation:
+- Clearly labels this as an internship learning project
+- Does NOT claim to be official Triskele Labs software
+- Uses an educational license (not Apache-2.0)
+- Contains disclaimers on every page
+- Is set to PRIVATE on GitHub
+- Contains no confidential Triskele Labs information
+
+Repository: [GitHub URL - private, add supervisor as collaborator]
+
+Key Questions for Your Review:
+1. Is it clear this is an internship project, not official TL software?
+2. Are the disclaimers sufficient to protect Triskele Labs from liability?
+3. Is the license appropriate (Educational/Portfolio vs Apache-2.0)?
+4. Are there any TL-specific details I should remove or generalize?
+5. Do you approve sharing this with potential employers for job applications?
+
+Please let me know if any changes are needed before I share this externally.
+
+Thanks,
+Tony
+
+Example: Sanitized README.md
+
+text
+# Purple Team Automation - Internship Project
+
+**Internship Portfolio Project by Tony To**  
+*Triskele Labs Intern - Detection Engineer and Automation Officership (January-February 2026)*
+
+[![Status](https://img.shields.io/badge/Status-Educational%20Project-blue)]()
+[![License](https://img.shields.io/badge/License-Educational%20Portfolio-green)]()
+
+---
+
+## ⚠️ Project Disclaimer
+
+**This is an internship learning project, NOT production software.**
+
+- **Purpose**: Demonstrate plugin development skills and security automation concepts
+- **Context**: Educational exercise completed during Triskele Labs internship
+- **Status**: Proof-of-concept for portfolio purposes only
+- **NOT**: Production-ready, officially supported, or intended for real security operations
+
+**Author**: Tony To (Intern)  
+**Supervisor**: [Name if approved]  
+**Organisation**: Triskele Labs (Internship Programme)
+
+---
+
+## Project Overview
+
+During my internship at Triskele Labs, I explored Caldera plugin development 
+by building three custom plugins to understand purple team automation workflows.
+
+**Learning Objectives**:
+- Understand Caldera's plugin architecture through hands-on development
+- Practice ELK Stack integration for security event correlation
+- Develop Python skills in a security automation context
+- Build a portfolio piece demonstrating security engineering capabilities
+
+**What I Built**:
+- **Orchestrator Plugin**: Event-driven ELK tagging automation
+- **Reporting Plugin**: PDF report generation with detection coverage analysis
+- **Branding Plugin**: UI customisation exploration
+
+---
+
+## Skills Demonstrated
+
+This project showcases my ability to:
+- Develop plugins for security automation frameworks
+- Implement event-driven architectures in Python
+- Integrate with SIEM platforms (Elasticsearch)
+- Generate PDF reports programmatically (ReportLab)
+- Write comprehensive technical documentation
+- Follow security development best practices
+
+---
+
+## Development Environment Setup
+
+**Intended Users**: Portfolio reviewers, technical interviewers, educators
+
+**Prerequisites**:
+- Python 3.9+
+- Elasticsearch 8.11+ (for ELK integration testing)
+- 8GB RAM (for running Caldera in development mode)
+
+**Quick Start** (Development Environment):
+```bash
+# Clone repository (private - request access)
+git clone https://github.com/L1quidDroid/Internship_C
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Start development environment
+./scripts/tl-startup.sh
+Access: http://localhost:8888 (development server)
+
+Project Structure
+
+text
+internship-project/
+├── plugins/              # Three custom plugins I developed
+│   ├── orchestrator/    # ELK tagging automation
+│   ├── reporting/       # PDF report generation
+│   └── branding/        # UI customisation
+├── docs/                # Learning documentation
+│   ├── architecture/    # System design I explored
+│   ├── development/     # Development notes
+│   └── user-guide/      # Usage examples
+└── scripts/             # Development automation scripts
+
+Documentation
+For Portfolio Reviewers:
+* Project Architecture - Design patterns I learned
+* Plugin Development - How I built custom plugins
+* Challenges Overcome - Problem-solving examples
+All documentation describes educational work, not production systems.
+
+Demonstration
+Live Demo: [Record screen demo video - upload to YouTube private/portfolio site]
+Key Features Demonstrated:
+1. Automated ELK event tagging via Caldera lifecycle hooks
+2. PDF report generation with MITRE ATT&CK coverage analysis
+3. Custom branding integration with Vue.js frontend
+Reminder: This demo uses a sandboxed lab environment.
+
+Testing
+Test Coverage:
+* Orchestrator: 15 unit tests
+* Reporting: 22 unit tests + 6 integration tests
+Purpose: Demonstrate testing practices learned during internship
+Run Tests (Development Environment):
+
+bash
+python -m pytest plugins/orchestrator/tests/
+python -m pytest plugins/reporting/tests/
+
+What I Learned
+Technical Skills:
+* Python async/await patterns
+* Event-driven architecture design
+* Elasticsearch Query DSL
+* PDF generation with ReportLab
+* Vue.js component integration
+* Git workflow and code review practices
+Security Concepts:
+* Purple team methodologies
+* MITRE ATT&CK framework application
+* SIEM correlation patterns
+* Secure coding practices (input validation, sanitisation)
+Problem-Solving Examples:
+* [Link to challenges-solved.md with specific technical problems and solutions]
+
+Portfolio Use
+How to Reference This Project:
+✅ Correct:
+* "During my internship at Triskele Labs, I developed custom Caldera plugins..."
+* "Internship project exploring purple team automation (Tony To, 2026)"
+* "Educational proof-of-concept built under mentorship at Triskele Labs"
+❌ Incorrect:
+* "Triskele Labs purple team platform"
+* "Production security automation solution"
+* "Official Triskele Labs software"
+
+License
+Educational/Portfolio License - See LICENSE for details
+Summary: This code is shared for portfolio review and educational purposes only. Not licensed for commercial use, production deployment, or public distribution.
+
+Contact
+About This Project: tonyto02@proton.me Portfolio: https://tonyt.pages.dev/ LinkedIn: https://www.linkedin.com/in/tony-to1/
+
+
+Acknowledgements Organisation: Triskele Labs Based On: MITRE Caldera Framework (open source)
+Thank You: To my supervisor and the Triskele Labs team for mentorship and guidance during this learning experience.
+
+Final Reminder: This repository documents an internship learning project. It is NOT production software, NOT officially supported, and NOT intended for real security operations. All code is exploratory and for educational purposes.
+Last Updated: February 2026
+
+text
+***
+
+## Final Recommendations
+
+### Make It Look Professional ✅
+
+**DO**:
+- Use clean documentation structure
+- Include architecture diagrams
+- Show comprehensive testing
+- Demonstrate code quality
+- Write clear installation guides
+- Present well in demos
+
+### But Keep It Educational ✅
+
+**DO**:
+- Add disclaimers on every page
+- Frame as "learning exercise"
+- Use "I learned" language
+- Attribute as internship work
+- Keep repository PRIVATE
+- Use Educational license
+
+### Legal Protection ✅
+
+**DO**:
+- Get supervisor approval
+- Remove production/client language
+- Add strong disclaimers
+- Clarify NOT official TL software
+- Keep confidential info out
+- Use appropriate license
+
+This approach lets you showcase professional-quality work while being legally clear it's an internship project, not production software.

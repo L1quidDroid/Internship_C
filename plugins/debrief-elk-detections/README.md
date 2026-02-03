@@ -41,9 +41,9 @@ debrief_elk_detections:
   company_name: "Triskele Labs"
 ```
 
-### Production SSL/TLS Configuration
+### Development Environment SSL/TLS Configuration
 
-For production deployments, **always enable SSL/TLS** for ELK connections:
+For learning environment setup with secure ELK connections, you can enable SSL/TLS:
 
 ```yaml
 debrief_elk_detections:

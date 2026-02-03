@@ -1,8 +1,15 @@
-# Purple Team Automation: Triskele Labs User Guide
+# Purple Team Automation: Internship Project User Guide
 
-**Version:** 5.3.0  
-**Platform:** Triskele Labs Command Center (Caldera Fork)  
-**Last Updated:** January 2026
+**⚠️ EDUCATIONAL PROJECT**: This guide documents an internship learning project, NOT production software.
+
+**Version:** 5.3.0 (Educational)  
+**Platform:** Caldera Plugin Development (Internship Project)  
+**Author:** Tony To (Intern - Detection Engineer and Automation Officer)  
+**Organisation:** Triskele Labs (Internship Programme)  
+**Timeline:** January-February 2026  
+**Status:** Educational/Portfolio Project
+
+See [INTERNSHIP_DISCLAIMER.md](../INTERNSHIP_DISCLAIMER.md) for complete legal information.
 
 ---
 
@@ -19,9 +26,9 @@
 
 ## 1. System Architecture Overview
 
-### 1.1 The 7-Plugin "Lean Core"
+### 1.1 The 7-Plugin Learning Architecture
 
-The Triskele Labs Command Center employs a streamlined architecture optimized for Managed Security Service Providers (MSPs). Our **Lean Core** consists of seven essential plugins:
+This internship project demonstrates a streamlined plugin architecture. The **7-Plugin Design** explores modular development patterns:
 
 | Plugin | Function | Resource Impact |
 |--------|----------|-----------------|
@@ -33,23 +40,25 @@ The Triskele Labs Command Center employs a streamlined architecture optimized fo
 | **Branding** | Custom UI/reporting theming | Visual identity |
 | **Reporting** | PDF/HTML report generation | Executive deliverables |
 
-### 1.2 Resource Optimization Strategy (7.7GB RAM)
+### 1.2 Development Environment Strategy (Learning Exercise)
+
+This project explores operating within resource constraints as a learning exercise:
 
 The platform is designed to operate within constrained environments:
 
-```
-┌─────────────────────────────────────────────────────────┐
-│              Memory Allocation Strategy                  │
+```Memory Allocation (Development Environment)     │
 ├─────────────────────────────────────────────────────────┤
 │  Caldera Core Server      │  ~1.5 GB                    │
 │  Plugin Overhead          │  ~0.5 GB                    │
 │  Active Operations        │  ~1.0 GB (variable)         │
 │  System Reserve           │  ~1.0 GB                    │
-│  ELK Stack (External)     │  Offloaded to separate VM   │
+│  ELK Stack (External)     │  Separate VM (learning)     │
 ├─────────────────────────────────────────────────────────┤
 │  Available Headroom       │  ~3.7 GB                    │
 └─────────────────────────────────────────────────────────┘
 ```
+
+**Learning Techniques Demonstrated**:
 
 **Key Optimization Techniques:**
 - Disabled non-essential plugins (training, emu, access)
@@ -57,20 +66,20 @@ The platform is designed to operate within constrained environments:
 - Lazy-loading of ability definitions
 - External SIEM integration (no local log storage)
 
----
-
-## 2. Workflow 1: The One-Liner Enrollment
+---Agent Deployment Learning Exercise
 
 ### 2.1 Overview
 
+This demonstrates simplified agent deployment patterns explored during the internship. The one-liner approach eliminates complex deployment procedures
+
 The One-Liner Enrollment feature eliminates the need for RDP access during agent deployment. Security teams can deploy agents across client environments using a single command.
 
-### 2.2 Step-by-Step: Agent Enrollment
+### 2.2 Step-by-Step: Agent Enrollm (Development Environment)
 
-#### Step 1: Access the Agents Page
+Navigate to **Campaigns → Agents** in the interface.
 
-Navigate to **Campaigns → Agents** in the Command Center.
-
+```
+http://localhost:8888/agents  (Development server)
 ```
 http://localhost:8888/agents
 ```

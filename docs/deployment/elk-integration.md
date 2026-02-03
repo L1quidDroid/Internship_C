@@ -1,6 +1,18 @@
+---
+
+**⚠️ INTERNSHIP PROJECT DOCUMENTATION**
+
+This document describes ELK integration approaches used during a Triskele Labs internship (January-February 2026) by Tony To. This is educational documentation for portfolio purposes, NOT official Triskele Labs documentation or production deployment guidance.
+
+**Status**: Learning Exercise | **NOT FOR**: Production Use
+
+See [INTERNSHIP_DISCLAIMER.md](../../INTERNSHIP_DISCLAIMER.md) for complete information.
+
+---
+
 # ELK Integration Guide
 
-This guide covers integrating the Triskele Labs Command Center with Elasticsearch, Logstash, and Kibana (ELK Stack) for automated SIEM tagging and purple team exercise tracking.
+This guide covers integrating this internship project with Elasticsearch, Logstash, and Kibana (ELK Stack) for learning purposes, demonstrating automated SIEM tagging and purple team exercise tracking concepts.
 
 ## Prerequisites
 

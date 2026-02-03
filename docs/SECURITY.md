@@ -1,81 +1,89 @@
-# Security Policy
+# Security Policy - Educational Project
 
-## Vulnerability Disclosure Policy
+**⚠️ IMPORTANT**: This is an **internship learning project**, NOT production software. This security policy is included for educational purposes to demonstrate understanding of security practices, but this code should NEVER be deployed in real environments.
+
+## Vulnerability Disclosure Policy (Educational Context)
 
 ### Overview
 
-This policy provides security researchers with clear guidelines for conducting vulnerability discovery activities and submitting discovered vulnerabilities to our team.
+This policy demonstrates security vulnerability disclosure practices as learned during my internship. Since this is educational code, actual vulnerabilities should be reported with the understanding this is a learning project.
+
+**Note**: For vulnerabilities in the upstream MITRE Caldera framework, please report to the official Caldera project.
 
 This policy describes:
-- What systems and types of research are covered
-- How to submit vulnerability reports
-- Expected timeline for disclosure
-
-We encourage responsible disclosure of potential vulnerabilities in our systems.
-
-### Authorisation
-
-If you make a good faith effort to comply with this policy during your security research, we will consider your research to be authorised and will work with you to understand and resolve the issue quickly.
-
-### Research Guidelines
-
-Under this policy, authorised research means activities in which you:
-
-- Notify us as soon as possible after discovering a real or potential security issue
-- Only use exploits to the extent necessary to confirm a vulnerability's presence
-- Provide us a reasonable amount of time to resolve the issue before disclosing it publicly
-- Do not submit a high volume of low-quality reports
+- What systems are covered (educational code only)
+- How to submit vulnerability reports (for learning purposes)
+- Expected timeline (no SLA - this is not production software)
 
 ### Scope
 
-This policy applies to:
-- The Triskele Labs Purple Team Environment codebase
-- Official deployment configurations
-- Plugin architecture and official plugins
-- API endpoints and authentication mechanisms
+This policy applies to this educational internship project:
+- Custom plugin implementations (educational code by intern)
+- Development environment configurations
+- Documentation and examples
 
-Out of scope:
+**Out of Scope**:
+- Production deployments (this project should never be deployed in production)
+- Official Triskele Labs systems (this is NOT official TL software)
 - Third-party dependencies (report to upstream maintainers)
-- Social engineering or physical security testing
-- Denial of service testing without prior approval
+- Commercial operations (prohibited use)
 
 ### What to Include in Your Report
 
-To help us triage and prioritise submissions, please include:
+To help me learn from security feedback, please include:
 
 - Operating system and Python version used
-- Description of the vulnerability location and potential impact
-- Detailed reproduction steps (proof of concept scripts or screenshots are helpful)
+- Description of the vulnerability location and potential impact in this educational code
+- Detailed reproduction steps (proof-of-concept scripts or screenshots are helpful)
 - Suggested remediation if available
 
-Reports in English are preferred but not required.
+### Where to Report
 
-### Our Commitment
+**For this educational project**:
+- Email: tonyto02@proton.me
+- Subject: "Security Issue - Internship Project Code"
 
-When you share your contact information with us, we commit to coordinating with you as openly and quickly as possible:
+**For actual MITRE Caldera issues**:
+- Report to the official MITRE Caldera project (this is not affiliated)
 
-- We will acknowledge receipt of your report within 10 business days
-- We will confirm the vulnerability's existence and maintain transparent communication about remediation steps
-- We will open reported issues to the public within 90 days or after a fix is released, whichever comes first
-- We will maintain an open dialogue to discuss issues and challenges
-- We will work with you on CVE issuance and ensure proper credit for your contribution
+### Response (Educational Project)
 
-### Responsible Disclosure
+As this is an educational/portfolio project by an intern:
 
-Information submitted under this policy will be used for defensive purposes only to mitigate or remediate vulnerabilities. This is an open source project with no commercial backing, therefore there is no bug bounty programme. However, we will ensure appropriate credit is given to researchers who help improve platform security.
+- I will acknowledge receipt within 5-10 business days
+- This is a learning exercise - no SLA or guaranteed response time
+- Issues will be addressed as time permits (educational purposes only)
+- This is NOT production s (Learning Exercise)
 
-## Security Best Practices
+**⚠️ Reminder**: This code is for learning purposes and should NEVER be deployed in production.
 
-When deploying the platform:
+These practices demonstrate security knowledge learned during the internship:
 
-- Change all default passwords immediately after installation
-- Use strong, unique passwords for all accounts
-- Enable TLS/SSL for production deployments
+When setting up the *HTTPS connections (learning exercise)
 - Restrict network access to required ports only
 - Regularly update dependencies and apply security patches
 - Use API key authentication for automated integrations
 - Implement role-based access control
 - Enable audit logging for all operations
+- Regularly backup configuration and data
+- Review and rotate API keys periodically
+
+**Note**: These are security practices learned during the internship, demonstrated in educational code.
+
+## Additional Resources (For Learning)
+
+- [Installation Guide](getting-started/installation.md) - Development environment setup
+- [Configuration Reference](getting-started/configuration.md) - Security configuration examples
+- [MITRE Caldera Security](https://github.com/mitre/caldera) - Upstream security information
+- [INTERNSHIP_DISCLAIMER.md](../INTERNSHIP_DISCLAIMER.md) - Full legal disclaimer
+
+---
+
+**DISCLAIMER**: This document is part of an internship learning project completed at Triskele Labs (January-February 2026). The security practices described are for educational purposes and demonstrate knowledge learned during the internship. This code should NEVER be used in production environments or real security operations. See [INTERNSHIP_DISCLAIMER.md](../INTERNSHIP_DISCLAIMER.md) for complete legal information.
+
+**Author**: Tony To (Intern - Detection Engineer and Automation Officer)  
+**Organisation**: Triskele Labs (Internship Programme)  
+**Status**: Educational/Portfolio Project
 - Regularly backup configuration and data
 - Review and rotate API keys periodically
 

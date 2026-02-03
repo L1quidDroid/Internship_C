@@ -1,8 +1,20 @@
+---
+
+**⚠️ INTERNSHIP PROJECT DOCUMENTATION**
+
+This document describes quick-start instructions for an internship project completed during a Triskele Labs internship (January-February 2026) by Tony To. This is educational documentation for portfolio purposes, NOT official Triskele Labs documentation.
+
+**Status**: Learning Exercise | **NOT FOR**: Production Use
+
+See [INTERNSHIP_DISCLAIMER.md](../../INTERNSHIP_DISCLAIMER.md) for complete information.
+
+---
+
 # Quick Start Guide
 
 ## Overview
 
-Get operational with the Triskele Labs Purple Team Environment in 10 minutes. This guide walks you through your first agent deployment and operation execution.
+Get operational with this internship project in 10 minutes. This guide walks you through your first agent deployment and operation execution for learning and demonstration purposes.
 
 ## Prerequisites
 
@@ -348,5 +360,5 @@ Now that you have completed your first operation:
 ## See Also
 
 - [Configuration Reference](configuration.md) - Detailed configuration options
-- [Deployment Guide](../deployment/local-deployment.md) - Production deployment
+- [Deployment Guide](../deployment/local-deployment.md) - Development environment setup
 - [Troubleshooting](../deployment/troubleshooting.md) - Common issues and solutions

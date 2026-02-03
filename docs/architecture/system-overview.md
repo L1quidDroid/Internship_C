@@ -1,6 +1,15 @@
-# System Overview
+# System Overview - Internship Project Documentation
 
-Comprehensive architectural overview of the Triskele Labs Purple Team Environment, a Caldera-based adversary emulation platform with integrated ELK Stack detection correlation.
+**⚠️ EDUCATIONAL PROJECT**: This documentation describes an internship learning project, NOT production software.
+
+**Author**: Tony To (Intern - Detection Engineer and Automation Officer)  
+**Organisation**: Triskele Labs (Internship Programme)  
+**Timeline**: January-February 2026  
+**Status**: Educational/Portfolio Documentation
+
+---
+
+Comprehensive architectural overview of the purple team automation internship project, demonstrating Caldera plugin development with ELK Stack integration patterns learned during the internship.
 
 ## Prerequisites
 
@@ -12,26 +21,26 @@ Before reviewing this document, ensure familiarity with:
 - Python asynchronous programming patterns (asyncio)
 - RESTful API architectures
 
-## Platform Architecture
+## Platform Architecture (Learning Exercise)
 
-The platform implements a server-centric architecture with distributed agents and modular plugin system. The core server orchestrates all operations, manages agent communications, and coordinates with external SIEM infrastructure.
+This project demonstrates a server-centric architecture with distributed agents and modular plugin system learned during the internship. The core server orchestrates operations, manages agent communications, and coordinates with external SIEM infrastructure.
 
 ### High-Level Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                     Web Interface (Vue.js)                   │
+│         Web Interface (Vue.js) - Educational Customisation  │
 │                    Magma Plugin Frontend                     │
 └──────────────────────┬──────────────────────────────────────┘
-                       │ HTTP/REST API
+                       │ HTTP/REST API (Learning)
 ┌──────────────────────┴──────────────────────────────────────┐
-│                   Core Server (Python/aiohttp)               │
+│         Core Server (Python/aiohttp) - Internship Study     │
 │  ┌────────────┐  ┌──────────────┐  ┌──────────────────┐    │
 │  │ REST API   │  │ Service Layer│  │ Plugin System    │    │
-│  │ (v1 & v2)  │  │ (8 Services) │  │ (7 Core Plugins) │    │
+│  │ (v1 & v2)  │  │ (8 Services) │  │ (7 Plugins Dev)  │    │
 │  └────────────┘  └──────────────┘  └──────────────────┘    │
 │  ┌────────────────────────────────────────────────────┐    │
-│  │          Event System (WebSocket-based)            │    │
+│  │     Event System (WebSocket-based) - Learning      │    │
 │  └────────────────────────────────────────────────────┘    │
 │  ┌────────────────────────────────────────────────────┐    │
 │  │     Object Store (In-Memory + Persistent)          │    │
@@ -39,13 +48,13 @@ The platform implements a server-centric architecture with distributed agents an
 └──────────────┬──────────────────────┬─────────────────┬────┘
                │                      │                 │
                │ C2 Protocols         │ REST API        │ Events
-               │ (HTTP/TCP/UDP/       │                 │
+               │ (HTTP/TCP/UDP/       │ (Learning)      │ (Study)
                │  WebSocket/etc)      │                 │
 ┌──────────────┴──────────────────┐  │  ┌──────────────┴─────┐
 │   Agents (Sandcat - GoLang)     │  │  │  ELK Stack         │
-│   - Windows/Linux/macOS         │  │  │  (Elasticsearch)   │
-│   - Cross-platform executors    │  │  │  - Detection tags  │
-│   - Autonomous operation        │  │  │  - Coverage data   │
+│   - Test Environments           │  │  │  (Elasticsearch)   │
+│   - Learning Exercise           │  │  │  - Detection tags  │
+│   - Cross-platform study        │  │  │  - Learning Lab    │
 └─────────────────────────────────┘  │  └────────────────────┘
                                      │
                           ┌──────────┴──────────┐
@@ -56,6 +65,8 @@ The platform implements a server-centric architecture with distributed agents an
                           │  - Configuration    │
                           └─────────────────────┘
 ```
+
+**Note**: This architecture diagram represents an educational implementation, not a production system.
 
 ### Core Components
 
@@ -175,12 +186,12 @@ Containerised server with optional ELK integration:
 └──────────────────┘
 ```
 
-**Use Cases**: Production deployments, managed service provider environments
+**Use Cases**: Learning environment setup, development and testing purposes
 
 **Characteristics**:
 - Isolated runtime environment
 - Simplified dependency management
-- Easy scaling and replication
+- Easy replication for portfolio demonstrations
 - Network-based ELK integration
 
 ### Distributed Deployment

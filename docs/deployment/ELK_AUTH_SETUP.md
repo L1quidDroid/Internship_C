@@ -39,7 +39,9 @@ curl http://localhost:8888/plugin/orchestrator/status | python3 -m json.tool
 # }
 ```
 
-## Production Deployment (TL VM)
+## Development Environment (Learning Setup)
+
+**⚠️ INTERNSHIP PROJECT**: This section describes development environment setup for learning purposes.
 
 ### 1. On VM: Create `.env.elk` File
 

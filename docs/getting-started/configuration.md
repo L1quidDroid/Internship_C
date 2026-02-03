@@ -1,8 +1,20 @@
+---
+
+**⚠️ INTERNSHIP PROJECT DOCUMENTATION**
+
+This document describes configuration approaches used during a Triskele Labs internship (January-February 2026) by Tony To. This is educational documentation for portfolio purposes, NOT official Triskele Labs documentation.
+
+**Status**: Learning Exercise | **NOT FOR**: Production Use
+
+See [INTERNSHIP_DISCLAIMER.md](../../INTERNSHIP_DISCLAIMER.md) for complete information.
+
+---
+
 # Configuration Reference
 
 ## Overview
 
-This document provides comprehensive configuration guidance for the Triskele Labs Purple Team Environment. Configuration is managed through YAML files and environment variables.
+This document provides configuration guidance for this internship project. Configuration is managed through YAML files and environment variables.
 
 ## Configuration Files
 
@@ -42,7 +54,7 @@ ssl_key: null                    # Path to SSL private key
 
 **Production Recommendations:**
 - Bind to specific interface for security
-- Enable SSL/TLS for production deployments
+- Enable SSL/TLS for secure development environments
 - Use reverse proxy (nginx, Apache) for SSL termination
 
 ### Authentication Settings
@@ -490,5 +502,5 @@ rm conf/local.yml
 
 - [Installation Guide](installation.md) - Initial setup procedures
 - [Quick Start Guide](quick-start.md) - Get operational quickly
-- [Deployment Guide](../deployment/local-deployment.md) - Production deployment
+- [Deployment Guide](../deployment/local-deployment.md) - Development environment setup
 - [API Reference](../technical/api-reference.md) - Programmatic configuration

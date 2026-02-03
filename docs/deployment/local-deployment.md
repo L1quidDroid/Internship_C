@@ -1,6 +1,18 @@
+---
+
+**⚠️ INTERNSHIP PROJECT DOCUMENTATION**
+
+This document describes deployment approaches used during a Triskele Labs internship (January-February 2026) by Tony To. This is educational documentation for portfolio purposes, NOT official Triskele Labs documentation or production deployment guidance.
+
+**Status**: Learning Exercise | **NOT FOR**: Production Use
+
+See [INTERNSHIP_DISCLAIMER.md](../../INTERNSHIP_DISCLAIMER.md) for complete information.
+
+---
+
 # Local Deployment Guide
 
-This guide covers deploying the Triskele Labs Command Center on a local Ubuntu VM or bare metal server.
+This guide covers deploying this internship project on a local Ubuntu VM or development environment for testing and portfolio demonstration purposes.
 
 ## Prerequisites
 
@@ -597,7 +609,7 @@ chmod 600 conf/local.yml
 
 ### Network Security
 
-- Run behind firewall or VPN for production deployments
+- Run behind firewall or VPN for secure development environments
 - Use `--insecure` flag only for development environments
 - Configure HTTPS in production (ports 8443)
 - Restrict access to management ports (9200, 5601)

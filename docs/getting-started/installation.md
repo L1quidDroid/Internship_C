@@ -1,8 +1,20 @@
+---
+
+**⚠️ INTERNSHIP PROJECT DOCUMENTATION**
+
+This document describes installation approaches used during a Triskele Labs internship (January-February 2026) by Tony To. This is educational documentation for portfolio purposes, NOT official Triskele Labs documentation.
+
+**Status**: Learning Exercise | **NOT FOR**: Production Use
+
+See [INTERNSHIP_DISCLAIMER.md](../../INTERNSHIP_DISCLAIMER.md) for complete information.
+
+---
+
 # Installation Guide
 
 ## Overview
 
-This guide covers the installation and initial setup of the Triskele Labs Purple Team Environment. The platform requires Python 3.9 or higher and can optionally integrate with an Elasticsearch Stack for SIEM correlation.
+This guide covers the installation and initial setup of this internship project for testing and portfolio demonstration purposes. The project requires Python 3.9 or higher and can optionally integrate with an Elasticsearch Stack for SIEM correlation demonstration.
 
 ## Prerequisites
 

@@ -1,15 +1,27 @@
+---
+
+**⚠️ INTERNSHIP PROJECT DOCUMENTATION**
+
+This document describes a custom plugin developed during a Triskele Labs internship (January-February 2026) by Tony To. This is educational documentation for portfolio purposes, NOT official Triskele Labs documentation or production software.
+
+**Status**: Learning Exercise | **NOT FOR**: Production Use
+
+See [INTERNSHIP_DISCLAIMER.md](../../INTERNSHIP_DISCLAIMER.md) for complete information.
+
+---
+
 # Orchestrator Plugin - Purple Team Attack Tagging
 
 **Version**: 1.0.0  
-**Status**: ✅ Ready for Testing  
-**Author**: Tony (Detection & Automation Engineer Intern)  
-**Organization**: Triskele Labs
+**Status**: ✅ Educational/Portfolio Project  
+**Author**: Tony To (Intern)  
+**Organization**: Triskele Labs Internship Programme
 
 ---
 
 ## Overview
 
-The Orchestrator Plugin automatically tags Caldera operations in Elasticsearch, enabling Detection Engineers to instantly filter purple team simulations from real security alerts. This eliminates 20+ minutes of manual SIEM alert closure per session and improves attack throughput by 6x.
+The Orchestrator Plugin is a custom Caldera plugin developed during this internship to demonstrate automatic Elasticsearch tagging capabilities. This learning project explores event-based architecture and SIEM integration patterns.
 
 ### Key Features
 

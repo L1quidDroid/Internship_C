@@ -1,7 +1,19 @@
+---
+
+**⚠️ INTERNSHIP PROJECT DOCUMENTATION**
+
+This document describes a custom plugin deployment developed during a Triskele Labs internship (January-February 2026) by Tony To. This is educational documentation for portfolio purposes, NOT official Triskele Labs documentation or production deployment guidance.
+
+**Status**: Learning Exercise | **NOT FOR**: Production Use
+
+See [INTERNSHIP_DISCLAIMER.md](../../INTERNSHIP_DISCLAIMER.md) for complete information.
+
+---
+
 # Debrief ELK Detections Plugin - Deployment Guide
 
 ## Overview
-This guide covers production deployment of the debrief-elk-detections plugin for Caldera 5.0+. The plugin integrates MITRE debrief reports with Elasticsearch detection correlation to provide purple-team coverage analysis.
+This guide covers deployment of the debrief-elk-detections plugin for Caldera 5.0+, developed during this internship. The plugin integrates MITRE debrief reports with Elasticsearch detection correlation to demonstrate purple-team coverage analysis concepts.
 
 ---
 
@@ -361,7 +373,7 @@ curl "http://your-elk:9200/_cluster/health"
 - Increase timeout: `elk_connection_timeout: 60` in config
 - Reduce query scope: `max_techniques_per_query: 50` (default 100)
 - Check ELK cluster resources (CPU/memory)
-- Add index optimization:
+- Add index optimisation:
   ```bash
   curl -X POST "http://your-elk:9200/purple-team-logs-*/_forcemerge?max_num_segments=1"
   ```
@@ -490,7 +502,9 @@ cp -r plugins/reporting.backup plugins/reporting
 
 ---
 
-## Production Deployment Checklist
+## Development Environment Checklist
+
+**⚠️ INTERNSHIP PROJECT**: This section describes development environment setup for portfolio demonstration.
 
 Before going live:
 

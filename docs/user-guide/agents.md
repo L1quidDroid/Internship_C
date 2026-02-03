@@ -1,8 +1,20 @@
+---
+
+**⚠️ INTERNSHIP PROJECT DOCUMENTATION**
+
+This document describes work completed during a Triskele Labs internship (January-February 2026) by Tony To. This is educational documentation for portfolio purposes, NOT official Triskele Labs documentation or production software guidance.
+
+**Status**: Learning Exercise | **NOT FOR**: Production Use
+
+See [INTERNSHIP_DISCLAIMER.md](../../INTERNSHIP_DISCLAIMER.md) for complete information.
+
+---
+
 # Agent Deployment and Management
 
 ## Introduction
 
-This guide covers agent deployment, enrolment, and management within the Triskele Labs Command Center. The platform's one-liner enrolment feature eliminates the need for RDP access during agent deployment, enabling security teams to deploy agents across client environments using a single command.
+This guide covers agent deployment and enrolment features developed during this internship project. The one-liner enrolment approach demonstrates simplified deployment capabilities for learning purposes.
 
 ## Prerequisites
 
