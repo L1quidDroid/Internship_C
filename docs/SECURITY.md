@@ -13,12 +13,6 @@ This policy describes:
 
 We encourage responsible disclosure of potential vulnerabilities in our systems.
 
-### Reporting Vulnerabilities
-
-**Contact:** security@triskelelabs.com
-
-Reports may be submitted anonymously.
-
 ### Authorisation
 
 If you make a good faith effort to comply with this policy during your security research, we will consider your research to be authorised and will work with you to understand and resolve the issue quickly.
@@ -69,10 +63,6 @@ When you share your contact information with us, we commit to coordinating with 
 ### Responsible Disclosure
 
 Information submitted under this policy will be used for defensive purposes only to mitigate or remediate vulnerabilities. This is an open source project with no commercial backing, therefore there is no bug bounty programme. However, we will ensure appropriate credit is given to researchers who help improve platform security.
-
-### Questions and Feedback
-
-Questions regarding this policy may be sent to security@triskelelabs.com. We welcome suggestions for improving this policy.
 
 ## Security Best Practices
 

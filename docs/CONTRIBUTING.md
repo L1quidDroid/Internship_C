@@ -14,7 +14,7 @@ When reporting issues, please provide:
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/triskele-labs/command-center.git --recursive
+git clone https://github.com/L1quidDroid/Internship_C.git --recursive
 cd command-center
 ```
 

@@ -25,8 +25,7 @@ This guide covers the installation and initial setup of the Triskele Labs Purple
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/triskele-labs/command-center.git
-cd command-center
+git clone https://github.com/L1quidDroid/Internship_C.git
 ```
 
 ### Step 2: Create Python Virtual Environment

@@ -58,3 +58,14 @@ test1_report_(1).json
 .gitignore
 plugins/orchestrator/test_event_handler.py
 plugins/orchestrator/deploy_and_verify.sh
+internship-blog/corrections-log.md
+internship-blog/README.md
+internship-blog/copilot-queries/01-repository-facts.md
+internship-blog/copilot-queries/02-orchestrator-plugin.md
+internship-blog/copilot-queries/03-reporting-plugin.md
+internship-blog/copilot-queries/04-branding-plugin.md
+internship-blog/copilot-queries/05-architecture.md
+internship-blog/copilot-queries/06-challenges-solved.md
+internship-blog/copilot-queries/07-testing-quality.md
+internship-blog/verification-checklists/daily-workflow.md
+internship-blog/verification-checklists/master-checklist.md

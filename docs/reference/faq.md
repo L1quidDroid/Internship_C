@@ -7,8 +7,8 @@
 Clone the repository, create a Python virtual environment, install dependencies, and configure the platform:
 
 ```bash
-git clone https://github.com/triskele-labs/command-center.git
-cd command-center
+git clone https://github.com/L1quidDroid/Internship_C.git
+cd Internship_C
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
