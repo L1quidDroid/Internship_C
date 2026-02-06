@@ -8,6 +8,7 @@ import json
 import asyncio
 import logging
 import re
+import base64
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Dict, Any
@@ -189,6 +190,7 @@ class ELKTagger:
                 'ability_count': len(ability_names),
                 'technique_count': len(techniques_list),
                 'status': getattr(operation, 'state', 'unknown')
+                #'output': ()
             },
             
             # Tags for Kibana filtering (purple_T1078, purple_TA0007)
@@ -383,6 +385,49 @@ class ELKTagger:
                 if hasattr(link, 'finish') and link.finish:
                     finish_time = link.finish if isinstance(link.finish, str) else str(link.finish)
                 
+                # Read link output if available
+                link_output = None
+                if hasattr(link, 'output') and link.output:
+                    try:
+                        # Import file service to read result file
+                        from app.service.file_svc import FileSvc
+                        file_svc = FileSvc()
+                        
+                        # Read result file (returns base64 encoded JSON string)
+                        result_data = file_svc.read_result_file(link_id=link.id)
+                        
+                        # Decode and parse the result
+                        decoded_result = base64.b64decode(result_data).decode('utf-8')
+                        result_json = json.loads(decoded_result)
+                        
+                        # Extract stdout (limit to 10KB to avoid huge documents)
+                        stdout = result_json.get('stdout', '')
+                        stderr = result_json.get('stderr', '')
+                        exit_code = result_json.get('exit_code', '')
+                        
+                        # Truncate if too large (10KB limit)
+                        max_output_size = 10240
+                        if len(stdout) > max_output_size:
+                            stdout = stdout[:max_output_size] + '\n... [TRUNCATED]'
+                        if len(stderr) > max_output_size:
+                            stderr = stderr[:max_output_size] + '\n... [TRUNCATED]'
+                        
+                        link_output = {
+                            'stdout': stdout,
+                            'stderr': stderr,
+                            'exit_code': exit_code,
+                            'has_output': True
+                        }
+                        
+                        self.log.debug(f'Retrieved output for link {link.id[:8]}... (stdout: {len(stdout)} bytes)')
+                        
+                    except FileNotFoundError:
+                        self.log.debug(f'No output file found for link {link.id[:8]}...')
+                        link_output = {'has_output': False}
+                    except Exception as e:
+                        self.log.warning(f'Failed to read link output: {str(e)[:100]}')
+                        link_output = {'has_output': False, 'error': str(e)[:200]}
+                
                 metadata = {
                     '@timestamp': datetime.utcnow().isoformat() + 'Z',
                     'purple': {
@@ -405,7 +450,8 @@ class ELKTagger:
                         'detection_status': 'pending',
                         'execution_time': execution_time,
                         'finish_time': finish_time,
-                        'command_hash': link.command_hash if hasattr(link, 'command_hash') else None
+                        'command_hash': link.command_hash if hasattr(link, 'command_hash') else None,
+                        'output': link_output
                     },
                     'tags': [
                         'purple_team', 'caldera', 'tl_labs', 'link_execution',
