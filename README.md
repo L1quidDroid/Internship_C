@@ -260,17 +260,194 @@ This internship project showcases competencies in:
 
 ## Architecture
 
-The platform employs a modular architecture with seven core plugins:
+The platform employs a modular architecture with seven core plugins integrated with an external ELK Stack for detection validation.
+
+### System Architecture Diagram
+
+```mermaid
+graph TB
+    subgraph "User Interface Layer"
+        UI[CALDERA Web UI<br/>Port 8888/8443<br/>Vue.js SPA + Branding]
+    end
+    
+    subgraph "CALDERA Core Server"
+        direction TB
+        REST[REST API<br/>aiohttp]
+        EVENT[Event Service<br/>WebSocket Pub/Sub]
+        DATA[Data Service<br/>Object Store]
+        CONTACT[Contact Service<br/>C2 Handler]
+    end
+    
+    subgraph "Custom Plugins"
+        direction LR
+        HOOK[Orchestrator Plugin<br/>Event Subscribers]
+        TAGGER[ELK Tagger<br/>Metadata Builder]
+        CIRCUIT[Circuit Breaker<br/>max_failures=5]
+        FALLBACK[Fallback Logger<br/>JSON files]
+    end
+    
+    subgraph "Sandcat Agent C2"
+        direction TB
+        AGENT[Sandcat Agent<br/>gocat binary]
+        BEACON[HTTP Beacon<br/>Port 8888 POST /beacon]
+        P2P[P2P Proxy<br/>Port 7010]
+    end
+    
+    subgraph "External ELK Stack"
+        direction LR
+        ES[(Elasticsearch<br/>Port 9200<br/>purple-team-logs-*)]
+        KIBANA[Kibana Dashboard<br/>Visualization]
+    end
+    
+    subgraph "Debrief Plugin"
+        DEBRIEF[ELK Detection Plugin<br/>Query purple.* fields]
+        PDF[PDF Report<br/>ReportLab]
+    end
+    
+    subgraph "Target Systems"
+        TARGET[Endpoint Hosts<br/>Windows/Linux<br/>EDR Telemetry]
+    end
+    
+    %% User interactions
+    UI -->|1. Create Operation| REST
+    REST -->|2. Store Operation| DATA
+    DATA -->|3. Fire Event| EVENT
+    
+    %% Event-driven orchestration
+    EVENT -->|4. operation.state_changed| HOOK
+    HOOK -->|5. Extract Metadata| TAGGER
+    TAGGER -->|6. Build ECS Document<br/>purple.technique<br/>purple.operation_id| CIRCUIT
+    
+    %% ELK integration path
+    CIRCUIT -->|7a. POST JSON<br/>HTTP :9200| ES
+    CIRCUIT -.->|7b. Fallback on failure| FALLBACK
+    
+    %% Agent communication
+    CONTACT -->|8. Beacon endpoint| BEACON
+    AGENT -->|9. HTTP Heartbeat| BEACON
+    BEACON -->|10. Instructions| AGENT
+    AGENT -->|11. Execute Ability| TARGET
+    
+    %% Link status tracking
+    TARGET -->|12. Results| AGENT
+    AGENT -->|13. Results| CONTACT
+    CONTACT -->|14. Update Link| DATA
+    DATA -->|15. Fire Event| EVENT
+    EVENT -->|16. link.status_changed| HOOK
+    
+    %% Detection correlation
+    DEBRIEF -->|17. Query operation_id| ES
+    ES -->|18. Detection status| DEBRIEF
+    DEBRIEF -->|19. Generate PDF| PDF
+    
+    %% Alternative C2
+    AGENT -.->|Optional| P2P
+    
+    %% Visualization
+    ES -->|Data| KIBANA
+    
+    %% Styling
+    classDef primary fill:#2E86AB,stroke:#333,stroke-width:2px,color:#fff
+    classDef plugin fill:#A23B72,stroke:#333,stroke-width:2px,color:#fff
+    classDef storage fill:#F18F01,stroke:#333,stroke-width:2px,color:#fff
+    classDef agent fill:#C73E1D,stroke:#333,stroke-width:2px,color:#fff
+    
+    class UI,REST,EVENT,DATA,CONTACT primary
+    class HOOK,TAGGER,CIRCUIT,DEBRIEF,PDF plugin
+    class ES,KIBANA storage
+    class AGENT,BEACON,TARGET agent
+```
+
+### Network Ports and Services
+
+| Port | Protocol | Service | Purpose | Component |
+|------|----------|---------|---------|-----------|
+| **8888** | HTTP | CALDERA Web UI | Primary web interface and agent beacons | Core Server |
+| **8443** | HTTPS | CALDERA SSL | Encrypted web access | Core Server |
+| **7010** | TCP | Sandcat P2P | Agent-to-agent proxy communication | Sandcat Plugin |
+| **7011** | UDP | DNS Tunneling | Covert C2 channel (optional) | Contact Service |
+| **7012** | TCP | Gist C2 | GitHub Gist-based C2 (optional) | Contact Service |
+| **8853** | TCP | WebSocket | Agent communication tunneling | Contact Service |
+| **8022** | TCP | FTP | File upload/download C2 channel | Contact Service |
+| **2222** | TCP | Custom TCP | Generic TCP beacon handler | Contact Service |
+| **9200** | HTTP | Elasticsearch | SIEM data ingestion and queries | External ELK Stack |
+
+> **Note**: Elasticsearch/ELK Stack is deployed separately on the local machine (not included in this repository). See [ELK Integration Guide](docs/deployment/elk-integration.md) for setup instructions.
+
+### Metadata Injection Flow
+
+The orchestrator plugin automatically tags purple team operations in Elasticsearch with MITRE ATT&CK metadata:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  1. Operation Created                                           │
+│     User → REST API → data_svc.create_operation()              │
+└────────────────────────┬────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  2. Event Service Fires                                         │
+│     event_svc.fire_event(exchange='operation',                  │
+│                          queue='state_changed')                 │
+└────────────────────────┬────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  3. Orchestrator Listens                                        │
+│     orchestrator_svc.on_operation_state_changed()               │
+│     - Extract operation metadata                                │
+│     - Build ECS-compatible document                             │
+└────────────────────────┬────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  4. Sanitize and Validate                                       │
+│     elk_tagger._sanitize_metadata()                             │
+│     - Validate MITRE ATT&CK IDs (T1234, T1234.001)             │
+│     - Sanitize operation names (remove special chars)           │
+│     - Limit field lengths                                       │
+└────────────────────────┬────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  5. Tag in Elasticsearch                                        │
+│     POST http://localhost:9200/purple-team-logs-*/_doc          │
+│     {                                                           │
+│       "@timestamp": "2026-02-10T12:34:56Z",                     │
+│       "purple": {                                               │
+│         "technique": "T1078",                                   │
+│         "tactic": "TA0001",                                     │
+│         "operation_id": "a1b2c3d4-...",                         │
+│         "detection_status": "pending"                           │
+│       },                                                        │
+│       "tags": ["purple_team", "purple_T1078"]                  │
+│     }                                                           │
+└────────────────────────┬────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  6. Circuit Breaker Check                                       │
+│     if ELK unavailable:                                         │
+│       - Increment failure count                                 │
+│       - Open circuit after 5 failures                           │
+│       - Fallback to JSON file logging                           │
+│     else:                                                       │
+│       - Reset failure count                                     │
+│       - Continue normal operation                               │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Core Plugins
 
 - **Magma** - Vue.js 3 frontend interface
-- **Sandcat** - Cross-platform agent (GoLang)
-- **Stockpile** - Adversary profiles and abilities library
+- **Sandcat** - Cross-platform agent (GoLang) with HTTP, P2P, DNS, and FTP C2 channels
+- **Stockpile** - Adversary profiles and abilities library (MITRE ATT&CK mapped)
 - **Atomic** - MITRE Atomic Red Team integration
-- **Orchestrator** - Automated workflow and SIEM tagging
-- **Branding** - Custom theming and visual identity
-- **Reporting** - PDF and HTML report generation
+- **Orchestrator** - Event-driven SIEM tagging with circuit breaker and fallback logging
+- **Branding** - Custom theming and visual identity (middleware injection)
+- **Reporting** - PDF and HTML report generation with detection correlation
 
-For detailed architecture documentation, see [System Architecture](docs/architecture/system-overview.md).
+For detailed architecture documentation, see [System Architecture](docs/architecture/system-overview.md) or the [Architectural Review](internship-blog/verified-content/architectural-review.md).
 
 ## Repository Structure
 
@@ -443,6 +620,92 @@ Educational/Portfolio License - See [LICENSE](LICENSE) for details.
 - Debugging and troubleshooting methodologies
 
 **See [internship-blog/](internship-blog/) for detailed development challenges, solutions, and lessons learned.**
+
+---
+
+## Future Development Roadmap
+
+The following enhancements are planned for future iterations of this learning project:
+
+### High Priority
+
+**1. Log Shipping Layer** (ELK Stack Enhancement)
+- [ ] Add Filebeat agent to ship fallback logs from `plugins/orchestrator/data/fallback_logs/`
+- [ ] Deploy Logstash pipeline for log enrichment (GeoIP, user-agent parsing)
+- [ ] Configure Beats protocol on port 5044 for durable message queue
+- [ ] Implement auto-retry mechanism for failed Elasticsearch ingestion
+
+**2. Detection Coverage Metrics**
+- [ ] Build Kibana dashboards for real-time purple team metrics
+- [ ] Add detection coverage percentage calculations
+- [ ] Implement detection gap analysis with automated recommendations
+- [ ] Create time-series analysis of detection improvement trends
+
+**3. Webhook Integration**
+- [ ] Add Slack notifications for operation start/completion
+- [ ] Implement PagerDuty alerting for critical detection failures
+- [ ] Support Splunk HTTP Event Collector (HEC) as alternative SIEM
+- [ ] Generic webhook framework for custom integrations
+
+### Medium Priority
+
+**4. Frontend Modernization**
+- [ ] Refactor branding plugin to use Vue.js 3 Single File Components
+- [ ] Implement Vue Composition API for reactive state management
+- [ ] Add Vue Router for navigation between custom plugin views
+- [ ] Integrate with Magma Vue SPA architecture
+
+**5. Enhanced Reporting**
+- [ ] Add MITRE ATT&CK Navigator heatmap generation
+- [ ] Export reports to JSON, CSV, and Markdown formats
+- [ ] Implement executive summary templates
+- [ ] Add trend analysis across multiple operations
+
+**6. Advanced Detection Correlation**
+- [ ] Machine learning-based anomaly detection in operation patterns
+- [ ] Automatic detection rule generation from successful evasions
+- [ ] Integration with threat intelligence feeds (MISP, STIX/TAXII)
+- [ ] Detection engineering workflow automation
+
+### Low Priority
+
+**7. Performance Optimization**
+- [ ] Implement caching layer for frequently accessed operation data
+- [ ] Add Redis for session management and job queuing
+- [ ] Optimize Elasticsearch query performance with index templates
+- [ ] Add connection pooling for async HTTP clients
+
+**8. Testing and Quality**
+- [ ] Increase unit test coverage to >90%
+- [ ] Add end-to-end integration tests with pytest-asyncio
+- [ ] Implement load testing for concurrent operations
+- [ ] Add static code analysis with Pylint and mypy type checking
+
+**9. Documentation**
+- [ ] Add video walkthroughs for each plugin
+- [ ] Create Jupyter notebooks for data analysis tutorials
+- [ ] Build interactive API documentation with Swagger UI
+- [ ] Document common troubleshooting scenarios
+
+**10. Security Enhancements**
+- [ ] Implement OAuth2 authentication for Elasticsearch
+- [ ] Add rate limiting for API endpoints
+- [ ] Enable mutual TLS for agent-server communication
+- [ ] Add audit logging for all administrative actions
+
+### Experimental Features
+
+**11. Cloud Integration**
+- [ ] Deploy agents to AWS EC2, Azure VMs, and GCP Compute
+- [ ] Add support for Kubernetes-based agent deployment
+- [ ] Implement cloud-native C2 channels (SQS, Azure Service Bus)
+
+**12. Advanced Adversary Emulation**
+- [ ] Import MITRE Cyber Analytics Repository (CAR) detection rules
+- [ ] Add support for custom TTPs beyond ATT&CK framework
+- [ ] Implement behavioral analytics for agent actions
+
+> **Note**: This roadmap represents learning objectives and potential enhancements. Prioritization may change based on educational goals and mentor feedback.
 
 ---
 

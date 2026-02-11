@@ -1,0 +1,232 @@
+### View Caldera TL Edition Architecture
+
+<aside>
+🛠
+
+Caldera facilitates a closed-loop validation cycle by bridging the gap between offensive execution and defensive observation. By transitioning from manual command strings to an integrated orchestration layer, the system enables agents to execute TTPs on the target Windows VM while simultaneously injecting  metadata into the ELK Stack. This ensures that every simulated attack is uniquely tagged with its corresponding MITRE ATT&CK technique and operation ID, allowing for detection correlations.
+
+</aside>
+
+![Figure 2: By establishing a direct C2 channel to execute TTPs while simultaneously shipping enriched telemetry to the ELK Stack, the system enables real-time correlation between offensive actions and high-fidelity behavioral alerts.](attachment:a8aae1a0-6853-443a-bb2c-142f5dfaf0b5:CALDERA_Web_UI_Data_Flow-2026-02-10-074027.png)
+
+Figure 2: By establishing a direct C2 channel to execute TTPs while simultaneously shipping enriched telemetry to the ELK Stack, the system enables real-time correlation between offensive actions and high-fidelity behavioral alerts.
+
+| **Port** | **Protocol** | **Service** | **Purpose** |
+| --- | --- | --- | --- |
+| **8888** | **HTTP** | CALDERA Main UI | Primary web interface and agent beacons |
+| **8443** | **HTTPS** | CALDERA SSL | Encrypted web access |
+| **7010** | TCP | Sandcat P2P | Agent-to-agent proxy communication |
+| **9200** | HTTP | Elasticsearch | SIEM data ingestion and queries |
+
+### View Technical Deep Dive
+
+### How Custom Orchestrator SIEM Tagging Plugin functions
+
+![CALDERA Web UI Data Flow-2026-02-10-080258.png](attachment:754c9b95-16c0-4c91-aa40-46bde9d6e636:CALDERA_Web_UI_Data_Flow-2026-02-10-080258.png)
+
+<aside>
+🛠
+
+One of the core features in this system is the Orchestrator automatic SIEM taggin**g** that happens when an operation is executed. Every attack technique is enriched with MITRE ATT&CK metadata and injected into Elasticsearch in real-time.
+
+</aside>
+
+- **Event-Driven Architecture**: The plugin utilises a pub/sub pattern by subscribing to `operation.state_changed` and `link.status_changed`, allowing it to react instantly to the attack lifecycle.
+- **Circuit Breaker Pattern**: To prevent system degradation, the engine monitors for ELK connectivity issues; after five consecutive failures, it "opens" the circuit and halts active API calls to the SIEM.
+- **Fallback Logging**: When the SIEM is unavailable, the Orchestrator gracefully degrades by switching to local JSON file logging, ensuring no validation data is lost.
+- **Input Sanitisation**: To maintain data integrity and prevent injection attacks, the engine uses regex validation to verify that every technique ID matches the MITRE ATT&CK format (e.g., `T1234` or `T1234.001`).
+- **ECS-Compliant Schema**: All telemetry is mapped to a dedicated `purple.*` namespace, ensuring that custom data follows the Elastic Common Schema and remains isolated from standard environmental logs.
+
+```python
+File: `plugins/orchestrator/hook.py`  
+# plugins/orchestrator/hook.py (Lines 66-91)
+
+# Subscribe to operation events via event_svc
+event_svc = services.get('event_svc')
+
+if event_svc:
+    # Listen for operation state changes (created, started, completed)
+    await event_svc.observe_event(
+        callback=orchestrator_svc.on_operation_state_changed,
+        exchange='operation',
+        queue='state_changed'
+    )
+    
+    # Listen for operation completion
+    await event_svc.observe_event(
+        callback=orchestrator_svc.on_operation_completed,
+        exchange='operation',
+        queue='completed'
+    )
+    
+    # Listen for individual attack execution (granular tagging)
+    await event_svc.observe_event(
+        callback=orchestrator_svc.on_link_status_changed,
+        exchange='link',
+        queue='status_changed'
+    )
+    
+    log.info('Orchestrator event handlers registered:')
+    log.info('operation/state_changed')
+    log.info('operation/completed')
+    log.info('link/status_changed (granular attack tagging)')
+
+```
+
+### Standardising Purple Team Telemetry
+
+<aside>
+🛠
+
+To avoid conflicts with native Elasticsearch fields, I implemented a custom namespace called "purple." that contains all purple team metadata
+
+</aside>
+
+```json
+# plugins/orchestrator/app/elk_tagger.py (Lines 136-205)
+
+def _build_metadata(self, operation) -> Dict[str, Any]:
+    """
+    Build ECS-compatible metadata from Caldera operation object.
+    
+    Uses purple.* namespace for ATT&CK fields to enable SIEM filtering:
+    - purple.technique: T1078, T1059.001, etc.
+    - purple.tactic: TA0001, TA0007, etc.
+    - purple.operation_id: Caldera operation UUID
+    - purple.detection_status: pending/detected/evaded
+    """
+    # Extract techniques and tactics from operation chain
+    techniques = []
+    tactics = []
+    ability_names = []
+    
+    if hasattr(operation, 'chain') and operation.chain:
+        for link in operation.chain:
+            if hasattr(link, 'ability'):
+                ability = link.ability
+                if hasattr(ability, 'technique_id') and ability.technique_id:
+                    techniques.append(ability.technique_id)
+                if hasattr(ability, 'tactic') and ability.tactic:
+                    tactics.append(ability.tactic)
+                if hasattr(ability, 'name') and ability.name:
+                    ability_names.append(ability.name)
+    
+    # Deduplicate and limit
+    techniques_list = list(set(techniques))
+    tactics_list = list(set(tactics))
+    
+    # Build ECS-compatible document with purple.* namespace
+    metadata = {
+        # ECS timestamp
+        '@timestamp': datetime.utcnow().isoformat() + 'Z',
+        
+        # Purple team namespace (for SIEM filtering)
+        'purple': {
+            'technique': techniques_list[0] if techniques_list else None,
+            'techniques': techniques_list,
+            'tactic': tactics_list[0] if tactics_list else None,
+            'tactics': tactics_list,
+            'operation_id': str(operation.id),
+            'operation_name': getattr(operation, 'name', 'Unknown'),
+            'agent_id': getattr(operation, 'group', 'unknown'),
+            'detection_status': 'pending', 
+             # Updated by detection correlation
+             
+            'ability_count': len(ability_names),
+            'technique_count': len(techniques_list),
+            'status': getattr(operation, 'state', 'unknown')
+        },
+        
+        # Tags for Kibana filtering (purple_T1078, purple_TA0007)
+        'tags': (
+            ['purple_team', 'caldera', 'tl_labs', 'simulation'] +
+            [f'purple_{t}' for t in techniques_list[:50]] +
+            [f'purple_{tac}' for tac in tactics_list[:20]]
+        )
+    }
+    
+    return metadata
+
+```
+
+**Example JSON Output** 
+
+```json
+{
+  "@timestamp": "2026-02-10T14:23:45Z",
+  "purple": {
+    "technique": "T1078",
+    "techniques": ["T1078", "T1059.001", "T1003.001"],
+    "tactic": "TA0001",
+    "tactics": ["TA0001", "TA0002", "TA0006"],
+    "operation_id": "a1b2c3d4-5678-90ab-cdef-1234567890ab",
+    "operation_name": "Client_Engagement_2026-02-10",
+    "agent_id": "red_team_windows_01",
+    "detection_status": "pending",
+    "ability_count": 15,
+    "technique_count": 8,
+    "status": "running"
+  },
+  "tags": [
+    "purple_team",
+    "caldera",
+    "tl_labs",
+    "simulation",
+    "purple_T1078",
+    "purple_T1059.001",
+    "purple_T1003.001",
+    "purple_TA0001",
+    "purple_TA0002"
+  ]
+}
+```
+
+### **Debrief-ELK-Detection Plugin Automated Detection Reporting**
+
+<aside>
+🎯
+
+This plugin automates the final stage of the purple team lifecycle by querying Elasticsearch to validate which techniques were successfully detected versus those that evaded existing security controls.
+
+</aside>
+
+**Key Plugin Features**:
+
+- **Operation Correlation**: Plugin utilises the `purple.operation_id` to instantly correlate every attack technique executed within a specific engagement, ensuring data integrity across the entire operation.
+- **Automated Aggregation**: The plugin performs aggregations on the `purple.technique` field, providing a real-time view of the "Detected vs. Evaded" status for each TTP.
+- **Automated Reporting**: Leveraging the **ReportLab** library, the plugin generates professional, color-coded PDF reports that visualises detection coverage gaps and operation results
+
+```python
+# plugins/debrief-elk-detections/app/elk_fetcher.py
+query = {
+    'bool': {
+        'must': [
+            # Correlate logs to the specific simulation ID
+            {'terms': {'purple.operation_id.keyword': ['a1b2c3d4-...']}},
+            # Ensure we are only pulling enriched purple team techniques
+            {'exists': {'field': 'purple.technique'}}
+        ]
+    }
+}
+
+# Executing the search with technique-based aggregations
+response = await es.search(
+    index='purple-team-logs-*',
+    query=query,
+    aggs={
+        'techniques': {
+            'terms': {'field': 'purple.technique.keyword'}
+        }
+    }
+)
+```
+
+### Engineering Hurdles and Challenges
+
+### Challenge 1: WebSocket Handling
+
+### Challenge 2: Circuit Breaker & Elasticsearch Unavailability
+
+### Challenge 3: Input Injection Attacks
+
+### Technical Proof: Concept Demonstration
